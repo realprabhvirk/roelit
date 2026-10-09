@@ -17,19 +17,6 @@ window.addEventListener('pointerdown', unlock, true);
 document.addEventListener('touchstart', () => {}, { passive: true });
 // Belt and braces against pinch-zoom (iOS ignores user-scalable=no in Safari).
 document.addEventListener('gesturestart', (e) => e.preventDefault());
-// Kill double-tap zoom on anything that isn't a text field.
-let lastTouchEnd = 0;
-document.addEventListener(
-  'touchend',
-  (e) => {
-    const now = Date.now();
-    const t = e.target as HTMLElement | null;
-    if (now - lastTouchEnd < 320 && !t?.closest('input, textarea')) e.preventDefault();
-    lastTouchEnd = now;
-  },
-  { passive: false },
-);
-
 // Warm the display font so the first card fits correctly.
 document.fonts?.load('100px Anton').catch(() => {});
 

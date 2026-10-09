@@ -621,6 +621,10 @@ textarea.text-input {
   opacity: 0;
   transition: opacity 300ms var(--ease);
 }
+.sheet-root:not(.open) {
+  /* While a sheet animates out, taps go straight through to the app. */
+  pointer-events: none;
+}
 .sheet-root.open .sheet-scrim {
   opacity: 1;
 }

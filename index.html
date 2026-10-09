@@ -21,5 +21,17 @@
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // If the app never mounts (e.g. the host served the unbuilt source),
+      // say so instead of showing a blank screen.
+      setTimeout(function () {
+        var app = document.getElementById('app');
+        if (app && !app.firstChild) {
+          app.innerHTML =
+            '<div style="font:17px/1.4 -apple-system,system-ui,sans-serif;padding:48px 24px;color:#1E1B18;background:#F3EDE2;position:fixed;inset:0">' +
+            '<b>ROEL IT! didn\'t load.</b><br>If you just deployed it, check the build ran: build command <code>npm run build</code>, output folder <code>dist</code>.</div>';
+        }
+      }, 4000);
+    </script>
   </body>
 </html>

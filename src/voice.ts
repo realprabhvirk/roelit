@@ -3,7 +3,25 @@
 import { signal } from '@preact/signals';
 import { heard, type CardInput } from './match';
 
-export type VoiceStatus = 'off' | 'starting' | 'listening' | 'unavailable' | 'offline';
+export type VoiceStatus = 'off' | 'starting' | 'listening' | 'unavailable' | 'offline' | 'paused';
+
+/** Plain-English reason for a recogniser error code, or null if it's routine. */
+export function explainVoiceError(code: string | null): string | null {
+  switch (code) {
+    case 'service-not-allowed':
+      return isStandalone()
+        ? "iOS won't let the home-screen app use speech recognition. Check Dictation is on (Settings → General → Keyboard → Dictation). If it is, voice usually works when you open the game in Safari."
+        : 'Speech recognition is off. Turn on Dictation: Settings → General → Keyboard → Dictation.';
+    case 'not-allowed':
+      return 'Mic or speech recognition permission was refused. Settings → Apps → Safari → Microphone, and allow Speech Recognition, then test again.';
+    case 'audio-capture':
+      return "Couldn't get the mic. Something else might be using it.";
+    case 'network':
+      return "Couldn't reach Apple's recogniser. Check your connection.";
+    default:
+      return null;
+  }
+}
 
 type SR = any; // SpeechRecognition isn't in lib.dom for every TS version.
 
@@ -35,8 +53,8 @@ export type VoiceOptions = {
   onMatch?: () => void;
   /** Every transcript update (for the Test voice screen). */
   onTranscript?: (text: string) => void;
-  /** Permission was refused / service blocked. */
-  onBlocked?: () => void;
+  /** Permission was refused / service blocked, with the error code. */
+  onBlocked?: (code: string) => void;
   /** Got real results back: voice works here. */
   onWorking?: () => void;
 };
@@ -55,6 +73,12 @@ export class VoiceListener {
   private sessionStart = 0;
   private restartTimer: ReturnType<typeof setTimeout> | null = null;
   private blocked = false;
+  /** Has any session actually started? Distinguishes "refused" from "restart refused". */
+  private everStarted = false;
+  /** Sessions in a row that died within a second. */
+  private quickFails = 0;
+  /** Last error code from the recogniser (for Settings → Test voice). */
+  lastError: string | null = null;
 
   constructor(private opts: VoiceOptions) {}
 
@@ -126,6 +150,7 @@ export class VoiceListener {
       return;
     }
     this.rec = rec;
+    this.sessionStart = 0;
     this.lastResults = [];
     this.baseIndex = 0;
     this.baseWords = 0;
@@ -133,6 +158,7 @@ export class VoiceListener {
 
     rec.onstart = () => {
       this.sessionStart = performance.now();
+      this.everStarted = true;
       if (this.rec === rec) this.status.value = 'listening';
     };
     rec.onresult = (e: any) => {
@@ -142,11 +168,22 @@ export class VoiceListener {
     };
     rec.onerror = (e: any) => {
       const err = e?.error as string | undefined;
-      if (err === 'not-allowed' || err === 'service-not-allowed' || err === 'audio-capture') {
-        this.blocked = true;
+      if (err && err !== 'no-speech' && err !== 'aborted') this.lastError = err;
+      if (err === 'not-allowed' || err === 'service-not-allowed') {
         this.wanted = false;
-        this.status.value = 'unavailable';
-        this.opts.onBlocked?.();
+        if (!this.everStarted) {
+          // Refused on the first try: genuinely blocked here.
+          this.blocked = true;
+          this.status.value = 'unavailable';
+          this.opts.onBlocked?.(err);
+        } else {
+          // It worked, then iOS refused an automatic restart. Don't keep
+          // poking it (that can re-show the mic prompt); sit this round out.
+          this.status.value = 'paused';
+        }
+      } else if (err === 'audio-capture') {
+        this.wanted = false;
+        this.status.value = 'paused';
       } else if (err === 'network') {
         this.status.value = 'offline';
         this.backoff = Math.max(this.backoff, 2000);
@@ -157,12 +194,20 @@ export class VoiceListener {
       if (this.rec !== rec) return;
       this.rec = null;
       if (!this.wanted) {
-        if (this.status.value !== 'unavailable') this.status.value = 'off';
+        // Keep an error state set by onerror; otherwise we just stopped.
+        if (this.status.value !== 'unavailable' && this.status.value !== 'paused') this.status.value = 'off';
         return;
       }
       // iOS stops the recogniser on its own every so often. Restart, backing
       // off if sessions are dying instantly.
-      const lived = performance.now() - this.sessionStart;
+      const lived = this.sessionStart ? performance.now() - this.sessionStart : 0;
+      this.quickFails = lived < 1000 ? this.quickFails + 1 : 0;
+      if (this.quickFails >= 4) {
+        // Dying instantly over and over: stop rather than loop.
+        this.wanted = false;
+        this.status.value = 'paused';
+        return;
+      }
       this.backoff = lived < 1000 ? Math.min(this.backoff * 2, 4000) : 250;
       if (this.status.value === 'listening') this.status.value = 'starting';
       this.restartTimer = setTimeout(() => {
@@ -174,9 +219,10 @@ export class VoiceListener {
     try {
       rec.start();
     } catch {
-      // "already started" or blocked: let onend/onerror sort it out.
+      // Threw synchronously (already started / not allowed). Don't loop.
       this.rec = null;
-      this.restartTimer = setTimeout(() => this.wanted && this.launch(C), 1000);
+      this.wanted = false;
+      this.status.value = this.everStarted ? 'paused' : 'unavailable';
     }
   }
 

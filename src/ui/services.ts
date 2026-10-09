@@ -1,7 +1,7 @@
 // Long-lived singletons shared by screens.
 import { TiltSensor } from '../tilt';
 import { VoiceListener } from '../voice';
-import { settings, voiceHealth } from '../state';
+import { settings, voiceError, voiceHealth } from '../state';
 import { isStandalone } from '../voice';
 
 export const tiltSensor = new TiltSensor(() => settings.value.flipTilt);
@@ -11,8 +11,9 @@ export function makeVoice(opts: { onMatch?: () => void; onTranscript?: (t: strin
   return new VoiceListener({
     lang: settings.value.voiceLang,
     ...opts,
-    onBlocked: () => {
+    onBlocked: (code) => {
       voiceHealth.value = 'blocked';
+      voiceError.value = code;
     },
     onWorking: () => {
       if (voiceHealth.value !== 'ok') voiceHealth.value = 'ok';

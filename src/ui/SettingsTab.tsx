@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { resetAll, settings, setSetting, voiceHealth, ROUND_LENGTHS, type Theme, type VoiceLang } from '../state';
+import { resetAll, resetVoiceHealth, settings, setSetting, voiceError, voiceHealth, ROUND_LENGTHS, type Theme, type VoiceLang } from '../state';
 import { STRINGS } from '../strings';
 import type { Sensitivity } from '../tilt';
 import { heard } from '../match';
-import { isStandalone, voiceSupported, type VoiceListener, type VoiceStatus } from '../voice';
+import { explainVoiceError, isStandalone, voiceSupported, type VoiceListener, type VoiceStatus } from '../voice';
 import { unlockAudio, setAudioSessionForMic, sfx } from '../audio';
 import { Group, Page, Row, Segmented, Sheet, Switch } from './controls';
 import { Icon } from './icons';
@@ -24,10 +24,9 @@ export function SettingsTab({ active }: { active: boolean }) {
   const blocked = voiceHealth.value === 'blocked';
   let voiceFoot: string | null = null;
   if (!supported) voiceFoot = "This browser doesn't do speech recognition, so it's tilt only.";
-  else if (blocked && standalone)
+  else if (blocked)
     voiceFoot =
-      "iOS is blocking speech recognition for home-screen apps on this phone. Tilt still works. Voice usually works if you open the game in Safari instead.";
-  else if (blocked) voiceFoot = 'Mic or speech recognition is blocked. Allow it in Settings → Apps → Safari, then try the test.';
+      (explainVoiceError(voiceError.value) ?? 'Mic or speech recognition is blocked.') + ' Tilt still works.';
   else voiceFoot = 'Listens during a round and counts the card when someone says it. Uses Apple’s recogniser, which may need a connection.';
 
   return (
@@ -164,6 +163,7 @@ const TEST_WORD = 'Kangaroo';
 
 function VoiceTestSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [status, setStatus] = useState<VoiceStatus>('off');
+  const [errCode, setErrCode] = useState<string | null>(null);
   const [text, setText] = useState('');
   const [hit, setHit] = useState(false);
   const voice = useRef<VoiceListener | null>(null);
@@ -187,6 +187,8 @@ function VoiceTestSheet({ open, onClose }: { open: boolean; onClose: () => void 
   const start = () => {
     unlockAudio();
     stop();
+    resetVoiceHealth();
+    setErrCode(null);
     setHit(false);
     setText('');
     const v = makeVoice({
@@ -200,19 +202,21 @@ function VoiceTestSheet({ open, onClose }: { open: boolean; onClose: () => void 
         }
       },
     });
-    v.status.subscribe((st) => setStatus(st));
+    v.status.subscribe((st) => {
+      setStatus(st);
+      if (st === 'unavailable' || st === 'paused' || st === 'offline') setErrCode(v.lastError);
+    });
     voice.current = v;
     setAudioSessionForMic(true);
     v.start();
   };
 
   const supported = voiceSupported();
+  const why = explainVoiceError(errCode);
   const msg = !supported
     ? "This browser doesn't support speech recognition."
-    : status === 'unavailable'
-      ? isStandalone()
-        ? "Blocked. iOS often won't let home-screen apps use speech recognition. Try it in Safari."
-        : 'Blocked. Check mic and speech recognition permissions for Safari.'
+    : status === 'unavailable' || status === 'paused'
+      ? (why ?? "The mic stopped and iOS wouldn't restart it. Tap Start to try again.") + (errCode ? ` (${errCode})` : '')
       : status === 'offline'
         ? "Can't reach the recogniser. Check your connection."
         : status === 'listening'

@@ -1,6 +1,6 @@
 // App-wide persisted state (settings, custom decks, best scores).
 import { computed, effect, signal } from '@preact/signals';
-import { load, save, clearAll } from './storage';
+import { load, save, clearAll, remove } from './storage';
 import type { Deck } from './deck';
 import type { Sensitivity } from './tilt';
 import { BUILT_IN_DECKS } from './decks';
@@ -35,6 +35,8 @@ effect(() => save('settings', settings.value));
 
 export function setSetting<K extends keyof Settings>(k: K, v: Settings[K]): void {
   settings.value = { ...settings.value, [k]: v };
+  // Turning voice on (or changing accent) is a fresh attempt.
+  if (k === 'voice' || k === 'voiceLang') resetVoiceHealth();
 }
 
 // A custom deck may share an id with a deck that later became built in
@@ -95,9 +97,19 @@ effect(() => save('motionPerm', motionPermission.value));
 export const micAsked = signal<boolean>(load('micAsked', false));
 effect(() => save('micAsked', micAsked.value));
 
-/** Voice health from the last attempt: lets Settings explain what happened. */
-export const voiceHealth = signal<'unknown' | 'ok' | 'blocked' | 'unsupported'>(load('voiceHealth', 'unknown'));
-effect(() => save('voiceHealth', voiceHealth.value));
+/**
+ * Voice health this session. Deliberately NOT persisted: iOS permissions
+ * change outside the app, so a "blocked" from last week shouldn't stick.
+ */
+export const voiceHealth = signal<'unknown' | 'ok' | 'blocked' | 'unsupported'>('unknown');
+/** Error code behind the last "blocked" (e.g. service-not-allowed). */
+export const voiceError = signal<string | null>(null);
+remove('voiceHealth'); // clean up the old persisted value
+
+export function resetVoiceHealth(): void {
+  voiceHealth.value = 'unknown';
+  voiceError.value = null;
+}
 
 export const installDismissed = signal<boolean>(load('installDismissed', false));
 effect(() => save('installDismissed', installDismissed.value));

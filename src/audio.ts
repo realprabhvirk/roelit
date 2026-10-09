@@ -37,10 +37,19 @@ export function unlockAudio(): void {
  * (handy at a party), but while the mic is live we hand control back to
  * "auto" so recognition and our sounds can share the session.
  */
+let sessionType: string | null = null;
+
 export function setAudioSessionForMic(micLive: boolean): void {
+  const want = micLive ? 'auto' : 'playback';
+  // Switching makes iOS reconfigure audio (and can stall the page), so only
+  // touch it when it actually changes.
+  if (want === sessionType) return;
   try {
     const s = (navigator as any).audioSession;
-    if (s && 'type' in s) s.type = micLive ? 'auto' : 'playback';
+    if (s && 'type' in s) {
+      s.type = want;
+      sessionType = want;
+    }
   } catch {
     /* ignore */
   }

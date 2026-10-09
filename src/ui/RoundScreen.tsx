@@ -155,19 +155,20 @@ export function RoundScreen({ deckId, tilt, voice: voiceOn }: { deckId: string; 
     raf = requestAnimationFrame(loop);
 
     return () => {
-      off();
-      offTilt();
-      offVoice?.();
-      voice?.stop();
-      setAudioSessionForMic(false);
-      round.dispose();
-      keepAwake(false);
-      setChromeColor(null);
-      cancelAnimationFrame(raf);
-      window.removeEventListener('keydown', onKey);
-      document.removeEventListener('visibilitychange', onVis);
+      // Listeners first: a leaked touchmove blocker would freeze scrolling app-wide.
       document.removeEventListener('touchmove', block);
       document.removeEventListener('gesturestart', block);
+      window.removeEventListener('keydown', onKey);
+      document.removeEventListener('visibilitychange', onVis);
+      cancelAnimationFrame(raf);
+      for (const fn of [off, offTilt, () => offVoice?.(), () => voice?.stop(), () => setAudioSessionForMic(false),
+        () => round.dispose(), () => keepAwake(false), () => setChromeColor(null)]) {
+        try {
+          fn();
+        } catch {
+          /* keep cleaning up */
+        }
+      }
     };
   }, []);
 

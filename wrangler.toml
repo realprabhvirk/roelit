@@ -1,4 +1,0 @@
-# Cloudflare Pages. The dashboard still needs: Build command `npm run build`.
-name = "roelit"
-pages_build_output_dir = "./dist"
-compatibility_date = "2026-01-01"

@@ -24,17 +24,6 @@ No phone handy? Arrow keys work (↓ = ROEL IT!, ↑ = pass), so do taps on the 
 
 Every deploy ships a new service worker. The app checks for it whenever it comes back to the foreground and shows a "New version ready" toast with Reload, so the home-screen app actually updates.
 
-## Deploy to Cloudflare Pages
-
-Workers & Pages → Create → Pages → connect the repo, then:
-
-- Framework preset: **None** (or Vite)
-- Build command: **`npm run build`**
-- Build output directory: **`dist`**
-- Node: picked up from `.node-version` (22). Vite 7 needs 20.19+.
-
-Leave `BASE_PATH` unset: Cloudflare serves from the domain root. If you see a blank screen, the build didn't run and Pages is serving the raw source.
-
 ## Install on iPhone
 
 1. Open the Pages URL in **Safari**.

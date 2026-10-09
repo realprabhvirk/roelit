@@ -67,6 +67,11 @@ Custom decks: Decks → New deck. Cards are one per line, aliases after a bar: `
 - **No orientation lock.** iOS ignores the manifest and `screen.orientation.lock()`. Rotating to portrait mid-round shows "Turn your phone sideways" and pauses the clock.
 - Motion permission: iOS asks once (needs a tap). If you said no, Settings → Apps → Safari → Motion & Orientation Access. A home-screen app may need deleting and re-adding to ask again.
 - With the mic live, iOS can route sound quieter. Sounds are short to keep it sane.
+- In the home-screen app, iOS may re-ask for the mic on every recogniser start. So voice only restarts by itself when the last start came back instantly (no prompt). Otherwise the mic pill says **Tap to resume voice**, so a permission prompt never appears out of nowhere mid-game.
+
+## Diagnostics
+
+**Settings → Diagnostics** shows a rolling on-device log (taps that didn't land, main-thread stalls, voice and motion events, errors, screens), including the previous session, so it survives a force-quit. Copy or share it when something misbehaves. It never contains codes or card names. Code: `src/debug.ts`.
 
 ## Decisions
 
@@ -74,7 +79,7 @@ Custom decks: Decks → New deck. Cards are one per line, aliases after a bar: `
 - **Anton** for the big card word and deck names. System font (SF Pro) for UI.
 - **Phosphor Icons, bold weight**, bundled as SVG strings.
 - **Status bar**: `default` style + `theme-color` per screen (paper, near-black in dark, deck colour on game screens). `black-translucent` would force white status text, which disappears on the paper background.
-- Sounds are synthesised with Web Audio (no audio files). On iOS 16.4+ the audio session is set to `playback` when the mic is off so sounds play through the silent switch.
+- Sounds are synthesised with Web Audio (no audio files). The app leaves the iOS audio session alone: switching it mid-game was a freeze risk and paused people's music. So sounds follow the silent switch, and music keeps playing.
 - Card order is shuffled per deck and persisted, so you won't see repeats across rounds until the deck runs out.
 - `start_url`/`scope` are relative (`./`), so the manifest works on any Pages subpath.
 - **The Crew is locked.** Its cards are AES-GCM encrypted (key from the code via PBKDF2, 600k rounds) in `src/decks/the-crew.locked.json`, so the repo and live site only hold scrambled data. The code isn't stored anywhere in the repo. Enter it once and the phone remembers it; **Decks → The Crew → Lock again** forgets it. A 6-digit code keeps casual snoopers out but can't stop someone determined who downloads the file and brute-forces it.

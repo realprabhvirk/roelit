@@ -274,6 +274,28 @@ export class TiltSensor {
     window.removeEventListener('deviceorientation', this.onOrientation);
     window.removeEventListener('devicemotion', this.onMotion);
     this.filtered = null;
+    this.lastOrientationT = -Infinity;
+  }
+
+  private users = 0;
+
+  /** A screen that needs tilt calls this on mount and release() on unmount. */
+  acquire(): void {
+    this.users++;
+    this.start();
+  }
+
+  /** Sensors only run while someone needs them (saves battery, less event noise in menus). */
+  release(): void {
+    this.users = Math.max(0, this.users - 1);
+    if (this.users === 0) this.stop();
+  }
+
+  /** Re-attach listeners, e.g. right after iOS grants motion permission. */
+  refresh(): void {
+    if (!this.running) return;
+    this.stop();
+    this.start();
   }
 
   /** Start collecting neutral-pose samples (call at the start of the countdown). */

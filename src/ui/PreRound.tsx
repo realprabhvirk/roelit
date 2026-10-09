@@ -5,7 +5,8 @@ import { onColor, resolveColor } from '../palette';
 import { STRINGS } from '../strings';
 import { motionNeedsPermission, motionSupported, requestMotionPermission } from '../tilt';
 import { voiceSupported, type VoiceListener } from '../voice';
-import { unlockAudio, setAudioSessionForMic } from '../audio';
+import { unlockAudio } from '../audio';
+import { log } from '../debug';
 import { CloseButton } from './controls';
 import { Icon } from './icons';
 import { go, isLandscape } from './router';
@@ -29,7 +30,6 @@ function voiceWanted(): boolean {
 
 function startVoice(): void {
   if (!pendingVoice) pendingVoice = makeVoice({});
-  setAudioSessionForMic(true);
   pendingVoice.start();
 }
 
@@ -38,16 +38,28 @@ export function stopPendingVoice(): void {
   pendingVoice = null;
 }
 
-/** Call synchronously from the tap that starts a game. */
+/**
+ * Call synchronously from the tap that starts a game.
+ * Never fire two iOS permission requests at once: two system prompts in the
+ * same instant is asking for trouble. Motion goes first, voice after it settles.
+ */
 export function primeForRound(): void {
-  tiltSensor.start();
+  const wantVoice = voiceWanted() && micAsked.value;
   if (motionNeedsPermission() && motionPermission.value === 'granted') {
     // Already allowed once: re-request inside this gesture (resolves silently).
-    requestMotionPermission().then((r) => {
-      if (r === 'denied') motionPermission.value = 'denied';
-    });
+    log('motion: re-request');
+    requestMotionPermission()
+      .then((r) => {
+        log(`motion: ${r}`);
+        if (r === 'denied') motionPermission.value = 'denied';
+        else tiltSensor.refresh();
+      })
+      .finally(() => {
+        if (wantVoice) startVoice();
+      });
+    return;
   }
-  if (voiceWanted() && micAsked.value) startVoice();
+  if (wantVoice) startVoice();
 }
 
 const UPRIGHT_HOLD_MS = 700;
@@ -67,8 +79,11 @@ export function PreRound({ deckId }: { deckId: string }) {
 
   useEffect(() => {
     setChromeColor(color);
-    tiltSensor.start();
-    return () => setChromeColor(null);
+    tiltSensor.acquire();
+    return () => {
+      setChromeColor(null);
+      tiltSensor.release();
+    };
   }, [color]);
 
   const needMotion =
@@ -122,9 +137,11 @@ export function PreRound({ deckId }: { deckId: string }) {
 
   const enableMotion = () => {
     unlockAudio();
+    log('motion: request');
     requestMotionPermission().then((r) => {
+      log(`motion: ${r}`);
       motionPermission.value = r === 'granted' || r === 'unsupported' ? 'granted' : 'denied';
-      if (r === 'granted') tiltSensor.start();
+      if (r === 'granted') tiltSensor.refresh();
     });
   };
 

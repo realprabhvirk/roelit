@@ -203,7 +203,6 @@ p {
   inset: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   animation: fade-in 200ms var(--ease) both;
 }
@@ -617,6 +616,8 @@ textarea.text-input {
 .sheet-scrim {
   position: absolute;
   inset: 0;
+  /* iOS only sends taps to things it thinks are clickable. */
+  cursor: pointer;
   background: var(--scrim);
   opacity: 0;
   transition: opacity 300ms var(--ease);
@@ -698,7 +699,6 @@ textarea.text-input {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
   padding: 4px var(--gutter) 20px;
 }
 @media (orientation: landscape) and (max-height: 500px) {
@@ -1529,4 +1529,35 @@ textarea.text-input {
   .pin-dots {
     margin: 8px 0 12px;
   }
+}
+
+/* ---------- Diagnostics ---------- */
+
+.log-view {
+  margin: 0 0 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--surface);
+  font: 11px/1.45 ui-monospace, 'SF Mono', Menlo, monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  -webkit-user-select: text;
+  user-select: text;
+  max-height: 55vh;
+  overflow: auto;
+}
+
+/* Mic pill turns into a button when voice is paused mid-round. */
+.mic-pill.tappable {
+  pointer-events: auto;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 18px;
+  color: inherit;
+  background: color-mix(in srgb, var(--on) 22%, transparent);
+}
+
+/* The tilt test has a slider: let it be dragged. */
+.fullscreen.tilt-test {
+  touch-action: manipulation;
 }

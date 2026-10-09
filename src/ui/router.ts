@@ -1,6 +1,7 @@
 // Tiny app router: the tab shell is always mounted, full-screen flows sit on top.
 import { signal } from '@preact/signals';
 import type { Result } from '../game';
+import { log } from '../debug';
 
 export type Tab = 'play' | 'decks' | 'settings';
 
@@ -12,6 +13,7 @@ export type Screen =
   | { name: 'tilt-test' };
 
 export const tab = signal<Tab>('play');
+tab.subscribe((t) => log(`tab ${t}`));
 export const screen = signal<Screen>({ name: 'tabs' });
 
 /** Bumped on every navigation so a re-entered screen remounts fresh. */
@@ -19,6 +21,7 @@ export let screenNonce = 0;
 
 export function go(s: Screen): void {
   screenNonce++;
+  log(`screen ${s.name}${'deckId' in s ? ' ' + s.deckId : ''}`);
   screen.value = s;
 }
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { unlockCrew } from '../vault';
 import { sfx } from '../audio';
+import { log } from '../debug';
 import { Icon } from './icons';
 import { Sheet } from './controls';
 
@@ -27,6 +28,7 @@ export function PasscodeSheet({
 
   useEffect(() => {
     if (open) {
+      live.current = { digits: '', busy: false };
       setDigits('');
       setBusy(false);
       setShake(false);
@@ -36,13 +38,25 @@ export function PasscodeSheet({
   const press = async (k: string) => {
     const { digits: d, busy: b } = live.current;
     if (b) return;
-    if (k === 'back') return setDigits(d.slice(0, -1));
+    if (k === 'back') {
+      live.current = { digits: d.slice(0, -1), busy: false };
+      return setDigits(live.current.digits);
+    }
     if (d.length >= LENGTH) return;
     const next = d + k;
+    // Update the live copy now, not on the next render, so two taps in the
+    // same frame can't both read the old value.
+    live.current = { digits: next, busy: next.length >= LENGTH };
     setDigits(next);
     if (next.length < LENGTH) return;
     setBusy(true);
-    const ok = await unlockCrew(next);
+    log('passcode: checking');
+    // Never let the keypad wedge on a check that doesn't come back.
+    const ok = await Promise.race([
+      unlockCrew(next),
+      new Promise<boolean>((r) => setTimeout(() => r(false), 10_000)),
+    ]);
+    log(`passcode: ${ok ? 'ok' : 'wrong'}`);
     if (ok) {
       sfx.correct();
       onUnlocked();
@@ -50,6 +64,7 @@ export function PasscodeSheet({
       sfx.pass();
       setShake(true);
       setTimeout(() => {
+        live.current = { digits: '', busy: false };
         setShake(false);
         setDigits('');
         setBusy(false);
@@ -83,7 +98,19 @@ export function PasscodeSheet({
           k === '' ? (
             <span key={i} />
           ) : (
-            <button key={i} class="key press" onClick={() => press(k)} aria-label={k === 'back' ? 'Delete' : k}>
+            <button
+              key={i}
+              class="key press"
+              // Act on touch-down like the iOS keypad: fast typing can't be
+              // swallowed by the browser deciding a tap wasn't a "click".
+              onPointerDown={(e) => {
+                e.preventDefault();
+                press(k);
+              }}
+              // Keyboard / switch-control activation (no pointer involved).
+              onClick={(e) => e.detail === 0 && press(k)}
+              aria-label={k === 'back' ? 'Delete' : k}
+            >
               {k === 'back' ? <Icon name="backspace" size={26} /> : k}
             </button>
           ),

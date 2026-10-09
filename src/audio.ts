@@ -2,6 +2,8 @@
 // iOS needs the context created/resumed inside a user gesture, so
 // unlockAudio() is wired to the first pointerdown in main.tsx.
 
+import { log } from './debug';
+
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let enabled = true;
@@ -12,52 +14,41 @@ export function setSoundEnabled(on: boolean): void {
 
 export function unlockAudio(): void {
   try {
+    // iOS can close or permanently interrupt a context (phone call, mic use).
+    // A closed one can't come back, so start fresh.
+    if (ctx && ctx.state === 'closed') {
+      ctx = null;
+      master = null;
+    }
     if (!ctx) {
       const AC = window.AudioContext || (window as any).webkitAudioContext;
       if (!AC) return;
-      ctx = new AC();
-      master = ctx.createGain();
+      const c: AudioContext = new AC();
+      ctx = c;
+      master = c.createGain();
       master.gain.value = 0.9;
-      master.connect(ctx.destination);
+      master.connect(c.destination);
+      c.onstatechange = () => log(`audio: ${c.state}`);
       // A silent blip is what actually unlocks output on older iOS.
-      const b = ctx.createBuffer(1, 1, 22050);
-      const s = ctx.createBufferSource();
+      const b = c.createBuffer(1, 1, 22050);
+      const s = c.createBufferSource();
       s.buffer = b;
-      s.connect(ctx.destination);
+      s.connect(c.destination);
       s.start(0);
     }
-    if (ctx.state === 'suspended') void ctx.resume();
-  } catch {
-    /* no audio, no problem */
+    if (ctx.state !== 'running') void ctx.resume().catch(() => {});
+  } catch (e) {
+    log(`audio: unlock failed ${String(e).slice(0, 80)}`);
   }
 }
 
-/**
- * iOS 16.4+ Audio Session API. "playback" plays through the silent switch
- * (handy at a party), but while the mic is live we hand control back to
- * "auto" so recognition and our sounds can share the session.
- */
-let sessionType: string | null = null;
-
-export function setAudioSessionForMic(micLive: boolean): void {
-  const want = micLive ? 'auto' : 'playback';
-  // Switching makes iOS reconfigure audio (and can stall the page), so only
-  // touch it when it actually changes.
-  if (want === sessionType) return;
-  try {
-    const s = (navigator as any).audioSession;
-    if (s && 'type' in s) {
-      s.type = want;
-      sessionType = want;
-    }
-  } catch {
-    /* ignore */
-  }
-}
+// Note: we deliberately don't touch navigator.audioSession. Flipping its type
+// makes iOS reconfigure audio mid-game (a freeze risk), and "playback" also
+// stops whatever music the room is listening to.
 
 function ready(): AudioContext | null {
   if (!enabled || !ctx || !master) return null;
-  if (ctx.state === 'suspended') void ctx.resume();
+  if (ctx.state !== 'running') void ctx.resume().catch(() => {});
   return ctx;
 }
 

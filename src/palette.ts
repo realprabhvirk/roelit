@@ -20,7 +20,7 @@ export const INK = '#1E1B18';
 export const PAPER = '#F3EDE2';
 
 export function resolveColor(c: string): string {
-  return (PALETTE as Record<string, string>)[c] ?? c;
+  return Object.prototype.hasOwnProperty.call(PALETTE, c) ? (PALETTE as Record<string, string>)[c] : c;
 }
 
 /** Text colour that sits on top of a solid fill. */

@@ -79,7 +79,7 @@ export function validateDeck(input: unknown): ValidationResult {
   if (cards.length > 1000) return { ok: false, error: 'That deck is huge. Keep it under 1000 cards.' };
 
   const colorIn = typeof o.color === 'string' ? o.color : '';
-  const color = colorIn in PALETTE || HEX.test(colorIn) ? colorIn : 'slate';
+  const color = Object.prototype.hasOwnProperty.call(PALETTE, colorIn) || HEX.test(colorIn) ? colorIn : 'slate';
   const iconIn = typeof o.icon === 'string' ? o.icon : '';
   const icon = ICON_KEYS.includes(iconIn) ? iconIn : 'cards';
   const id = typeof o.id === 'string' && o.id.trim() ? slug(o.id) : slug(name);

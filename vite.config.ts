@@ -21,6 +21,8 @@ export default defineConfig({
   },
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
+    // Build stamp shown in Settings, so you can tell which deploy a phone is running.
+    __BUILD__: JSON.stringify(new Date().toISOString().slice(5, 16).replace('T', ' ')),
   },
   plugins: [
     preact(),

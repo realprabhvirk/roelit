@@ -85,9 +85,15 @@ export function deleteCustomDeck(id: string): void {
 export const bestScores = signal<Record<string, number>>(load('best', {}));
 effect(() => save('best', bestScores.value));
 
+/** Best score for a deck (own-property lookup: deck ids are user-chosen). */
+export function bestFor(deckId: string): number {
+  const b = bestScores.value;
+  return Object.prototype.hasOwnProperty.call(b, deckId) && typeof b[deckId] === 'number' ? b[deckId] : 0;
+}
+
 /** Returns true if this is a new best. */
 export function recordScore(deckId: string, score: number): boolean {
-  const prev = bestScores.value[deckId] ?? 0;
+  const prev = bestFor(deckId);
   if (score > prev) {
     bestScores.value = { ...bestScores.value, [deckId]: score };
     return prev > 0;

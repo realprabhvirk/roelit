@@ -4,20 +4,23 @@ import { STRINGS } from '../strings';
 import type { Sensitivity } from '../tilt';
 import { heard } from '../match';
 import { explainVoiceError, isStandalone, voiceSupported, type VoiceListener, type VoiceStatus } from '../voice';
-import { unlockAudio, setAudioSessionForMic, sfx } from '../audio';
+import { unlockAudio, sfx } from '../audio';
 import { Group, Page, Row, Segmented, Sheet, Switch } from './controls';
 import { Icon } from './icons';
 import { go } from './router';
 import { makeVoice } from './services';
 import { InstallSheet } from './HelpSheets';
+import { DiagnosticsSheet } from './Diagnostics';
 
 declare const __APP_VERSION__: string;
+declare const __BUILD__: string;
 
 export function SettingsTab({ active }: { active: boolean }) {
   const s = settings.value;
   const [voiceTest, setVoiceTest] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
   const [install, setInstall] = useState(false);
+  const [diag, setDiag] = useState(false);
 
   const supported = voiceSupported();
   const standalone = isStandalone();
@@ -140,7 +143,8 @@ export function SettingsTab({ active }: { active: boolean }) {
 
       <Group label="About">
         {!standalone && <Row title="Add to Home Screen" chevron onClick={() => setInstall(true)} />}
-        <Row title="Version" value={__APP_VERSION__} />
+        <Row title="Version" value={`${__APP_VERSION__} · ${__BUILD__}`} />
+        <Row title="Diagnostics" sub="Log to send if something freezes" chevron onClick={() => setDiag(true)} />
         <Row title={confirmReset ? 'Tap again to wipe everything' : 'Reset all data'} variant="destructive" onClick={() => {
           if (confirmReset) resetAll();
           else {
@@ -155,6 +159,7 @@ export function SettingsTab({ active }: { active: boolean }) {
 
       <VoiceTestSheet open={voiceTest} onClose={() => setVoiceTest(false)} />
       <InstallSheet open={install} onClose={() => setInstall(false)} />
+      <DiagnosticsSheet open={diag} onClose={() => setDiag(false)} />
     </Page>
   );
 }
@@ -167,11 +172,14 @@ function VoiceTestSheet({ open, onClose }: { open: boolean; onClose: () => void 
   const [text, setText] = useState('');
   const [hit, setHit] = useState(false);
   const voice = useRef<VoiceListener | null>(null);
+  const unsub = useRef<(() => void) | null>(null);
 
   const stop = () => {
+    unsub.current?.();
+    unsub.current = null;
     voice.current?.stop();
     voice.current = null;
-    setAudioSessionForMic(false);
+    setStatus('off');
   };
 
   useEffect(() => {
@@ -202,12 +210,11 @@ function VoiceTestSheet({ open, onClose }: { open: boolean; onClose: () => void 
         }
       },
     });
-    v.status.subscribe((st) => {
+    unsub.current = v.status.subscribe((st) => {
       setStatus(st);
       if (st === 'unavailable' || st === 'paused' || st === 'offline') setErrCode(v.lastError);
     });
     voice.current = v;
-    setAudioSessionForMic(true);
     v.start();
   };
 

@@ -2,6 +2,7 @@ import type { ComponentChildren, JSX } from 'preact';
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
 import { createPortal } from 'preact/compat';
 import { Icon } from './icons';
+import { log } from '../debug';
 
 // ---------- Segmented control ----------
 
@@ -159,11 +160,19 @@ export function Sheet({ open, onClose, title, left, right, tall, children, modal
   const drag = useRef<{ y0: number; t0: number; dy: number; id: number } | null>(null);
 
   useLayoutEffect(() => {
+    if (open || mounted) log(`sheet ${title ?? 'untitled'} ${open ? 'open' : 'close'}`);
     if (open) {
       setMounted(true);
-      // Next frame so the transition runs from off-screen.
-      const r = requestAnimationFrame(() => requestAnimationFrame(() => setShown(true)));
-      return () => cancelAnimationFrame(r);
+      // Two frames later so the transition runs from off-screen. Both frames
+      // are cancellable: a sheet closed straight away must not pop back open.
+      let r2 = 0;
+      const r1 = requestAnimationFrame(() => {
+        r2 = requestAnimationFrame(() => setShown(true));
+      });
+      return () => {
+        cancelAnimationFrame(r1);
+        cancelAnimationFrame(r2);
+      };
     }
     setShown(false);
     const t = setTimeout(() => setMounted(false), 420);
@@ -181,8 +190,13 @@ export function Sheet({ open, onClose, title, left, right, tall, children, modal
   const onDown = (e: PointerEvent) => {
     if (modal) return;
     if ((e.target as HTMLElement).closest('button')) return;
+    try {
+      // Throws if iOS has already cancelled this pointer; then just don't drag.
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch {
+      return;
+    }
     drag.current = { y0: e.clientY, t0: performance.now(), dy: 0, id: e.pointerId };
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     sheetRef.current?.classList.add('dragging');
   };
   const onMove = (e: PointerEvent) => {

@@ -24,6 +24,12 @@ const FOLD: Record<string, string> = {
 // "lord the rings", "The Office" matches "office").
 const OPTIONAL = new Set(['the', 'a', 'an', 'and', 'of']);
 
+// Own-property lookups only: `'constructor' in UNITS` is true for a plain
+// object, and the recogniser can absolutely hear the word "constructor".
+const has = (o: object, k: string): boolean => Object.prototype.hasOwnProperty.call(o, k);
+const isUnit = (w: string) => has(UNITS, w);
+const isTens = (w: string) => has(TENS, w);
+
 /** Lowercase, strip diacritics/punctuation, collapse whitespace. */
 export function normalise(text: string): string {
   return text
@@ -47,7 +53,7 @@ export function wordsToNumbers(tokens: string[]): string[] {
   let i = 0;
   while (i < tokens.length) {
     const t = tokens[i];
-    if (!(t in UNITS) && !(t in TENS) && !(t === 'a' && tokens[i + 1] === 'hundred')) {
+    if (!isUnit(t) && !isTens(t) && !(t === 'a' && tokens[i + 1] === 'hundred')) {
       out.push(t);
       i++;
       continue;
@@ -60,12 +66,12 @@ export function wordsToNumbers(tokens: string[]): string[] {
         value = 1;
         last = 'unit';
         i++;
-      } else if (w in TENS) {
+      } else if (isTens(w)) {
         if (last === 'unit' || last === 'tens') break;
         value += TENS[w];
         last = 'tens';
         i++;
-      } else if (w in UNITS) {
+      } else if (isUnit(w)) {
         const u = UNITS[w];
         if (last === 'unit') break;
         if (last === 'tens' && u >= 10) break;
@@ -76,7 +82,7 @@ export function wordsToNumbers(tokens: string[]): string[] {
         value = value * 100;
         last = 'hundred';
         i++;
-      } else if (w === 'and' && last === 'hundred' && (tokens[i + 1] ?? '') in { ...UNITS, ...TENS }) {
+      } else if (w === 'and' && last === 'hundred' && (isUnit(tokens[i + 1] ?? '') || isTens(tokens[i + 1] ?? ''))) {
         i++;
       } else {
         break;
@@ -89,7 +95,7 @@ export function wordsToNumbers(tokens: string[]): string[] {
 
 export function tokenise(text: string): string[] {
   const raw = normalise(text).split(' ').filter(Boolean);
-  return wordsToNumbers(raw).map((t) => FOLD[t] ?? t);
+  return wordsToNumbers(raw).map((t) => (has(FOLD, t) ? FOLD[t] : t));
 }
 
 /** Collapse adjacent digit tokens: ["1","80","degrees"] -> ["180","degrees"]. */

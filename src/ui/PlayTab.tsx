@@ -1,5 +1,5 @@
 import { useRef, useState } from 'preact/hooks';
-import { allDecks, bestScores, lastDeckId, settings, setSetting, ROUND_LENGTHS } from '../state';
+import { allDecks, bestFor, lastDeckId, settings, setSetting, ROUND_LENGTHS } from '../state';
 import { cardCount, isLocked, type Deck } from '../deck';
 import { onColor, resolveColor } from '../palette';
 import { Icon } from './icons';
@@ -55,7 +55,7 @@ export function PlayTab({ active }: { active: boolean }) {
 function DeckTile({ deck, height, onClick }: { deck: Deck; height: number; onClick: () => void }) {
   const bg = resolveColor(deck.color);
   const fg = onColor(deck.color);
-  const best = bestScores.value[deck.id];
+  const best = bestFor(deck.id);
   return (
     <button
       class={'deck-tile press' + (deck.color === 'ink' ? ' dark-tile' : '')}
@@ -100,7 +100,7 @@ export function DeckSheet({ deck, onClose }: { deck: Deck | null; onClose: () =>
               <Icon name={d.icon} size={28} />
               <div class="stat-line">
                 <span>{cardCount(d)} cards</span>
-                {bestScores.value[d.id] ? <span>Best {bestScores.value[d.id]}</span> : null}
+                {bestFor(d.id) ? <span>Best {bestFor(d.id)}</span> : null}
               </div>
             </div>
             <div>

@@ -108,3 +108,11 @@ describe('heard: aliases', () => {
     expect(heard('spa', card)).toBe(false);
   });
 });
+
+describe('heard: odd words', () => {
+  it('copes with words that are also JavaScript property names', () => {
+    expect(() => heard('constructor tostring valueof hasownproperty', 'Kangaroo')).not.toThrow();
+    expect(heard('the constructor', 'Constructor')).toBe(true);
+    expect(tokenise('constructor')).toEqual(['constructor']);
+  });
+});

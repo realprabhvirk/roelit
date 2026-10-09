@@ -20,10 +20,11 @@ export function TiltTest() {
   const [help, setHelp] = useState(false);
   const flashTimer = useRef<ReturnType<typeof setTimeout>>();
   const simulating = useRef(false);
+  const calibTimer = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     setChromeColor('#46505C');
-    tiltSensor.start();
+    tiltSensor.acquire();
     tiltSensor.resetCalibration();
     const off = tiltSensor.subscribe((s) => {
       setPitch(s.pitch);
@@ -41,8 +42,10 @@ export function TiltTest() {
     window.addEventListener('keydown', k);
     return () => {
       off();
+      tiltSensor.release();
       setChromeColor(null);
       clearTimeout(flashTimer.current);
+      clearTimeout(calibTimer.current);
       window.removeEventListener('keydown', k);
     };
   }, [detector]);
@@ -55,7 +58,8 @@ export function TiltTest() {
   const calibrate = () => {
     unlockAudio();
     tiltSensor.beginCalibration();
-    setTimeout(() => tiltSensor.endCalibration(), 400);
+    clearTimeout(calibTimer.current);
+    calibTimer.current = setTimeout(() => tiltSensor.endCalibration(), 400);
     detector.reset();
   };
 
@@ -65,6 +69,7 @@ export function TiltTest() {
     requestMotionPermission().then((r) => {
       motionPermission.value = r === 'denied' ? 'denied' : 'granted';
       if (r === 'denied') setHelp(true);
+      else tiltSensor.refresh();
     });
   };
 

@@ -4,9 +4,11 @@ import { onColor, resolveColor } from '../palette';
 import { STRINGS } from '../strings';
 import { CardQueue, Round, type Outcome } from '../game';
 import { THRESHOLDS, TiltDetector } from '../tilt';
-import { sfx, setAudioSessionForMic } from '../audio';
+import { sfx } from '../audio';
+import { log } from '../debug';
 import { keepAwake } from '../wakelock';
 import { cardText } from '../match';
+import type { Deck } from '../deck';
 import type { VoiceStatus } from '../voice';
 import { fitText, type Fit } from './fit';
 import { Icon } from './icons';
@@ -22,8 +24,22 @@ function fmt(sec: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-export function RoundScreen({ deckId, tilt, voice: voiceOn }: { deckId: string; tilt: boolean; voice: boolean }) {
-  const deck = findDeck(deckId)!;
+type RoundProps = { deckId: string; tilt: boolean; voice: boolean };
+
+export function RoundScreen(props: RoundProps) {
+  const deck = findDeck(props.deckId);
+  // Deck vanished (e.g. The Crew got locked again): back out instead of crashing.
+  useEffect(() => {
+    if (!deck || !deck.cards.length) {
+      log(`round: deck ${props.deckId} missing or empty, leaving`);
+      go({ name: 'tabs' });
+    }
+  }, []);
+  if (!deck || !deck.cards.length) return null;
+  return <RoundView deck={deck} tilt={props.tilt} voiceOn={props.voice} />;
+}
+
+function RoundView({ deck, tilt, voiceOn }: { deck: Deck; tilt: boolean; voiceOn: boolean }) {
   const color = resolveColor(deck.color);
   const on = onColor(deck.color);
 
@@ -53,9 +69,11 @@ export function RoundScreen({ deckId, tilt, voice: voiceOn }: { deckId: string; 
 
   // ----- wiring -----
   useEffect(() => {
+    let endTimer: ReturnType<typeof setTimeout> | undefined;
+    log(`round: start ${deck.id} tilt=${tilt} voice=${!!voice}`);
     setChromeColor(color);
     keepAwake(true);
-    if (tilt) tiltSensor.start();
+    if (tilt) tiltSensor.acquire();
 
     const off = round.on((e) => {
       switch (e.type) {
@@ -88,11 +106,11 @@ export function RoundScreen({ deckId, tilt, voice: voiceOn }: { deckId: string; 
         case 'end': {
           sfx.buzzer();
           voice?.stop();
-          setAudioSessionForMic(false);
           setFlash(null);
           setTimeUp(true);
           const newBest = recordScore(deck.id, round.score);
-          setTimeout(() => go({ name: 'results', deckId: deck.id, results: round.results, newBest }), TIME_UP_MS);
+          // Cleared on unmount: quitting during "Time!" must not yank you to results later.
+          endTimer = setTimeout(() => go({ name: 'results', deckId: deck.id, results: round.results, newBest }), TIME_UP_MS);
           break;
         }
       }
@@ -102,7 +120,8 @@ export function RoundScreen({ deckId, tilt, voice: voiceOn }: { deckId: string; 
     if (voice) {
       voice.setHandlers({ onMatch: () => round.mark('correct') });
       const unsub = voice.status.subscribe((s) => setVoiceStatus(s));
-      if (voice.status.value === 'off' && !voice.isBlocked) voice.start();
+      // Normally already started by the Start tap. If not, start without risking a prompt.
+      if (voice.status.value === 'off' && !voice.isBlocked) voice.startQuietly();
       offVoice = unsub;
     }
 
@@ -129,7 +148,7 @@ export function RoundScreen({ deckId, tilt, voice: voiceOn }: { deckId: string; 
         voice?.stop();
       } else {
         if (isLandscape.value) round.resume();
-        if (voice && round.phase !== 'ended') voice.start();
+        if (voice && round.phase !== 'ended') voice.startQuietly();
       }
       rerender();
     };
@@ -161,8 +180,9 @@ export function RoundScreen({ deckId, tilt, voice: voiceOn }: { deckId: string; 
       window.removeEventListener('keydown', onKey);
       document.removeEventListener('visibilitychange', onVis);
       cancelAnimationFrame(raf);
-      for (const fn of [off, offTilt, () => offVoice?.(), () => voice?.stop(), () => setAudioSessionForMic(false),
-        () => round.dispose(), () => keepAwake(false), () => setChromeColor(null)]) {
+      clearTimeout(endTimer);
+      for (const fn of [off, offTilt, () => offVoice?.(), () => voice?.stop(),
+        () => round.dispose(), () => keepAwake(false), () => setChromeColor(null), () => tilt && tiltSensor.release()]) {
         try {
           fn();
         } catch {
@@ -224,7 +244,7 @@ export function RoundScreen({ deckId, tilt, voice: voiceOn }: { deckId: string; 
           <span class="edge-hint">
             <Icon name="arrow-bend-up-right" size={16} style={{ transform: 'scaleX(-1)' }} /> Pass
           </span>
-          <MicPill on={!!voice} status={voiceStatus} />
+          <MicPill on={!!voice} status={voiceStatus} onResume={voice?.canResume ? () => voice.resume() : undefined} />
           <span class="edge-hint">
             {STRINGS.correct} <Icon name="check" size={16} />
           </span>
@@ -287,7 +307,7 @@ function Word({ text }: { text: string }) {
   );
 }
 
-function MicPill({ on, status }: { on: boolean; status: VoiceStatus }) {
+function MicPill({ on, status, onResume }: { on: boolean; status: VoiceStatus; onResume?: () => void }) {
   if (!on) {
     return (
       <span class="mic-pill dim">
@@ -306,6 +326,13 @@ function MicPill({ on, status }: { on: boolean; status: VoiceStatus }) {
             ? 'Voice unavailable'
             : 'Voice paused';
   const live = status === 'listening';
+  if (onResume && (status === 'paused' || status === 'off')) {
+    return (
+      <button class="mic-pill tappable press" onClick={onResume}>
+        <Icon name="microphone" size={14} /> Tap to resume voice
+      </button>
+    );
+  }
   return (
     <span class={'mic-pill' + (live ? ' live' : ' dim')} role="status">
       {live ? <span class="dot" /> : <Icon name="microphone-slash" size={14} />}

@@ -1,5 +1,5 @@
 import { useEffect } from 'preact/hooks';
-import { findDeck, bestScores } from '../state';
+import { findDeck, bestFor } from '../state';
 import { STRINGS } from '../strings';
 import type { Result } from '../game';
 import { cardText } from '../match';
@@ -13,7 +13,7 @@ export function Results({ deckId, results, newBest }: { deckId: string; results:
   const deck = findDeck(deckId);
   const got = results.filter((r) => r.outcome === 'correct');
   const passed = results.filter((r) => r.outcome === 'pass');
-  const best = bestScores.value[deckId] ?? 0;
+  const best = bestFor(deckId);
 
   const again = () => {
     unlockAudio();

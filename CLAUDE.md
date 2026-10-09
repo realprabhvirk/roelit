@@ -19,6 +19,8 @@ Phosphor Icons, **bold weight only**, bundled as raw SVG in `src/ui/icons.tsx`.
 - `src/game.ts` `Round` state machine + `CardQueue` (tested)
 - `src/voice.ts` Web Speech wrapper, never throws into a round
 - `src/audio.ts` Web Audio synth sounds, `src/wakelock.ts`, `src/storage.ts` (try/catch localStorage)
+- `src/debug.ts` on-device log (Settings → Diagnostics). Use `log()` for anything worth knowing after a freeze; never log codes or card text.
+- iOS rules learned the hard way: one SpeechRecognition at a time (voice.ts gates it); never fire two permission prompts at once; no surprise mic restarts in standalone; don't touch `navigator.audioSession`; the window must never stay scrolled (main.tsx snaps it back).
 - `src/state.ts` persisted signals (settings, custom decks, best scores)
 - `src/ui/*` screens; `router.ts` holds tab + full-screen flow
 - `src/strings.ts` app name and action labels. A correct guess is always "ROEL IT!", never "Correct".

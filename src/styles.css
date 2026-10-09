@@ -1454,3 +1454,79 @@ textarea.text-input {
     transition-duration: 1ms !important;
   }
 }
+
+/* ---------- Passcode ---------- */
+
+.pin-dots {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 18px 0 26px;
+}
+.pin-dots span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--ink-3);
+  transition: background-color 120ms linear, border-color 120ms linear;
+}
+.pin-dots span.on {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.pin-dots.shake {
+  animation: shake 420ms var(--ease);
+}
+.pin-dots.shake span {
+  border-color: var(--bad);
+  background: var(--bad);
+}
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-width: 320px;
+  margin: 0 auto 8px;
+}
+.key {
+  height: 58px;
+  border-radius: 14px;
+  background: var(--fill);
+  font-size: 26px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@keyframes shake {
+  20% {
+    transform: translateX(-10px);
+  }
+  40% {
+    transform: translateX(9px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+.deck-tile .lock-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  .key {
+    height: 44px;
+    font-size: 22px;
+  }
+  .keypad {
+    gap: 6px;
+  }
+  .pin-dots {
+    margin: 8px 0 12px;
+  }
+}

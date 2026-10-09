@@ -48,7 +48,7 @@ Open **Settings → Test tilt** on the phone. Hold it sideways on your forehead,
 
 ## Decks
 
-9 built-in decks in `src/decks/`: 8 general decks (90 cards each) plus **The Crew** (inside jokes). Schema:
+9 built-in decks in `src/decks/`: 8 general decks (90 cards each) plus **The Crew** (inside jokes), which is passcode-locked. Schema:
 
 ```json
 { "id": "animals", "name": "Animals", "color": "forest", "icon": "paw-print",
@@ -77,8 +77,16 @@ Custom decks: Decks → New deck. Cards are one per line, aliases after a bar: `
 - Sounds are synthesised with Web Audio (no audio files). On iOS 16.4+ the audio session is set to `playback` when the mic is off so sounds play through the silent switch.
 - Card order is shuffled per deck and persisted, so you won't see repeats across rounds until the deck runs out.
 - `start_url`/`scope` are relative (`./`), so the manifest works on any Pages subpath.
-- The Crew ships as a built-in deck (public in the build and the repo).
+- **The Crew is locked.** Its cards are AES-GCM encrypted (key from the code via PBKDF2, 600k rounds) in `src/decks/the-crew.locked.json`, so the repo and live site only hold scrambled data. The code isn't stored anywhere in the repo. Enter it once and the phone remembers it; **Decks → The Crew → Lock again** forgets it. A 6-digit code keeps casual snoopers out but can't stop someone determined who downloads the file and brute-forces it.
 - App icon: flat card-on-head mark drawn in `scripts/icon.svg`, rendered to PNG with resvg.
+
+## Editing The Crew
+
+```bash
+node scripts/crew.mjs unlock <code> > crew.json        # decrypt to edit (don't commit crew.json)
+node scripts/crew.mjs lock crew.json <code>            # re-encrypt into src/decks/the-crew.locked.json
+npm run build                                          # then commit the result
+```
 
 ## Structure
 

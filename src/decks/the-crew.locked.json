@@ -1,0 +1,15 @@
+{
+  "id": "the-crew",
+  "name": "The Crew",
+  "color": "ink",
+  "icon": "users-three",
+  "description": "Inside jokes. If you know, you know.",
+  "count": 54,
+  "sealed": {
+    "v": 1,
+    "iter": 600000,
+    "salt": "kfvtAHy8a3aJJ2a/J27NtQ==",
+    "iv": "goBpJIhtoslzIIoG",
+    "data": "kcQyxQ0FHvL8tjclg0Kyz+YrOxc32mwJ8tAgWDVoBXMUvkmcqZccfwyuWLpoNAFf6/9Nbio9FYzVdEC07C7NZlSOa3lWu0XueAnnfxyA2naCjmqkK8718MjfjVIMVu4seqi6J/ZmaV9bUo8YbLc/Tdt+KHcA7aPrmVJYCuMh3q2RFoQ3hrwmkb0L+ARotgd4v1u6gvD2MN5fOyLlVEaLYgR3Pw+50+fSI7oHPFRJeOWnsZL7e/CN99MF/2lqObFg4WTGzlD5KMiW3kklnEK9WBYDdtQnOy+JLbdWLQ5z/tcZwi/xAaXe1H6oJphx+z2QJdIXJ8UhIEMhLxzA2wYTIsj3AGKLBoJ/DSyCkIBiKMfgi/iF95kivnvd9KWmCXL3NytHIk8D0NhMjvATJMD9Z5I+Otw9pwwDce65BRN41LbvPElSwyunW43jkKYqFKKofQGfK08VnJz7ZchkaHcgih6AWjImayV/yAOShCApqc1lS46Gd0MrLdu2BhZ8MbRfy0ed2Bl7GZlNzl+yzWJ8agxzaLZPgdb1BCMMUe+/2n7GGKr0c87Ge85lr3B3Yd8Snt/njnmSD12RP/ifQyKh9Yb2OCaRF6huDBGetAulYPBFXa+JV7H5bKQeqpC7I60pbGFQPRttqnTGbhZfw99scxAUKkMMykqDJix7Dg0n/HyfqS19GE7HLQSoY6mYmrdzgB4Ml0jtUOePyXCp489zzID67/g8wyW+OgYByTpPXPSMeYfwxEk5L+1rAzaPonZUyy/iSPdqxaqOWwBCizjBWEBCzyxeW+XG51qNBlNYHk0p2VLTWC0vlJNFIXijerxTRC16ZmiVEF8l755dx3vF/YMnunLszhzIJJtHwQ4eLvZ5Jv8Eox+a9+9gzCFkCoYMv2+B/HbJgSYgf5XwEjvs9oj9K+fHgl6MjElXTUaSc+oLTWgFA4t+gZXzkiK6ZwExuM89b5SqnriuwSY4WIOdgMYyAT5dt75xUrYu57pr1qu6HLH7UqZA1varvjU9OVTCsM3an9rjzET2uHpsD9dC0q8pZ1/ONGu0/jCHz8wPIDid+HXSheT92Ucftla2IwfNNEopocmh7tS5Nw=="
+  }
+}

@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'preact/hooks';
-import { BUILT_IN_DECKS } from '../decks';
 import {
+  allDecks,
   customDecks,
   deleteCustomDeck,
   findDeck,
@@ -8,16 +8,20 @@ import {
   uniqueDeckId,
   upsertCustomDeck,
 } from '../state';
-import { cardsToLines, exportDeck, parseCardLines, parseDeckJSON, slug, text, type Deck } from '../deck';
+import { cardCount, cardsToLines, exportDeck, isLocked, parseCardLines, parseDeckJSON, slug, text, type Deck } from '../deck';
 import { PALETTE_NAMES, onColor, resolveColor } from '../palette';
 import { unlockAudio } from '../audio';
 import { ICON_KEYS, Icon } from './icons';
 import { Group, Page, Row, Sheet } from './controls';
 import { go } from './router';
+import { PasscodeSheet } from './Passcode';
+import { lockCrew } from '../vault';
+import { CREW_ID } from '../decks';
 import { primeForRound } from './PreRound';
 
 export function DecksTab({ active }: { active: boolean }) {
   const [preview, setPreview] = useState<Deck | null>(null);
+  const [lockFor, setLockFor] = useState<Deck | null>(null);
   const [editing, setEditing] = useState<Deck | 'new' | null>(null);
   const [notice, setNotice] = useState<{ title: string; body: string; deck?: Deck } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -81,8 +85,8 @@ export function DecksTab({ active }: { active: boolean }) {
       </Group>
 
       <Group label="Built in">
-        {BUILT_IN_DECKS.map((d) => (
-          <DeckRow key={d.id} deck={d} onClick={() => setPreview(d)} />
+        {allDecks.value.filter((d) => !d.custom).map((d) => (
+          <DeckRow key={d.id} deck={d} onClick={() => (isLocked(d) ? setLockFor(d) : setPreview(d))} />
         ))}
       </Group>
 
@@ -97,6 +101,15 @@ export function DecksTab({ active }: { active: boolean }) {
       />
 
       <PreviewSheet deck={preview} onClose={() => setPreview(null)} />
+      <PasscodeSheet
+        open={lockFor !== null}
+        title={lockFor?.name ?? 'Locked'}
+        onClose={() => setLockFor(null)}
+        onUnlocked={() => {
+          setPreview(findDeck(lockFor?.id) ?? null);
+          setLockFor(null);
+        }}
+      />
       <EditorSheet target={editing} onClose={() => setEditing(null)} />
       <Sheet
         open={!!notice}
@@ -144,10 +157,10 @@ function DeckRow({ deck, onClick }: { deck: Deck; onClick: () => void }) {
   return (
     <Row
       title={deck.name}
-      sub={`${deck.cards.length} cards`}
+      sub={`${isLocked(deck) ? 'Locked · ' : ''}${cardCount(deck)} cards`}
       lead={
         <span class="swatch" style={{ background: resolveColor(deck.color), color: onColor(deck.color) }}>
-          <Icon name={deck.icon} size={18} />
+          <Icon name={isLocked(deck) ? 'lock-simple' : deck.icon} size={18} />
         </span>
       }
       chevron
@@ -210,6 +223,18 @@ function PreviewSheet({ deck, onClose }: { deck: Deck | null; onClose: () => voi
               Play
             </button>
           </div>
+          {d.id === CREW_ID && (
+            <button
+              class="btn btn-plain press"
+              style={{ marginTop: 6 }}
+              onClick={() => {
+                onClose();
+                lockCrew();
+              }}
+            >
+              Lock again
+            </button>
+          )}
           <div class="field-label">Cards</div>
           <div class="card-list">
             {d.cards.map((c, i) => (

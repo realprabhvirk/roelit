@@ -16,7 +16,17 @@ export type Deck = {
   cards: Card[];
   /** Set on decks the user made or imported. */
   custom?: boolean;
+  /** Set while the deck is passcode-locked: `cards` is empty and this is the real count. */
+  lockedCount?: number;
 };
+
+export function isLocked(d: Deck): boolean {
+  return d.lockedCount !== undefined;
+}
+
+export function cardCount(d: Deck): number {
+  return d.lockedCount ?? d.cards.length;
+}
 
 export type ValidationResult = { ok: true; deck: Deck } | { ok: false; error: string };
 

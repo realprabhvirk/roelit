@@ -22,7 +22,8 @@ Phosphor Icons, **bold weight only**, bundled as raw SVG in `src/ui/icons.tsx`.
 - `src/state.ts` persisted signals (settings, custom decks, best scores)
 - `src/ui/*` screens; `router.ts` holds tab + full-screen flow
 - `src/strings.ts` app name and action labels. A correct guess is always "ROEL IT!", never "Correct".
-- Decks: `src/decks/*.json`, registered in `src/decks/index.ts` (The Crew included).
+- Decks: `src/decks/*.json`, registered in `src/decks/index.ts`.
+- The Crew is passcode-locked: only `src/decks/the-crew.locked.json` (encrypted) exists in the repo. `src/vault-crypto.ts` + `src/vault.ts` handle it; `scripts/crew.mjs` locks/unlocks. **Never commit the plaintext names or the passcode.**
 
 ## Design rules (non-negotiable)
 - Never use neon, glow, gradients, glassmorphism, emoji as icons, AI-generated icons/art, gradient text.

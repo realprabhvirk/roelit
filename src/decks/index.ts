@@ -7,7 +7,8 @@ import actItOut from './act-it-out.json';
 import aroundAustralia from './around-australia.json';
 import brandsApps from './brands-apps.json';
 import jobsTrades from './jobs-trades.json';
-import theCrew from './the-crew.json';
+import crewLocked from './the-crew.locked.json';
+import type { Sealed } from '../vault-crypto';
 
 export const BUILT_IN_DECKS: Deck[] = [
   animals,
@@ -18,5 +19,17 @@ export const BUILT_IN_DECKS: Deck[] = [
   aroundAustralia,
   brandsApps,
   jobsTrades,
-  theCrew,
+  {
+    id: crewLocked.id,
+    name: crewLocked.name,
+    color: crewLocked.color,
+    icon: crewLocked.icon,
+    description: crewLocked.description,
+    cards: [],
+    lockedCount: crewLocked.count,
+  },
 ] as Deck[];
+
+/** The Crew's cards, encrypted. Opened with a passcode (see vault.ts). */
+export const CREW_ID = crewLocked.id;
+export const CREW_SEALED = crewLocked.sealed as Sealed;

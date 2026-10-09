@@ -2,6 +2,8 @@
 // Never hand-draw icons; add the Phosphor file here instead.
 import type { JSX } from 'preact';
 
+import i_lock_simple from '@phosphor-icons/core/assets/bold/lock-simple-bold.svg?raw';
+import i_backspace from '@phosphor-icons/core/assets/bold/backspace-bold.svg?raw';
 import i_play from '@phosphor-icons/core/assets/bold/play-bold.svg?raw';
 import i_stack from '@phosphor-icons/core/assets/bold/stack-bold.svg?raw';
 import i_gear_six from '@phosphor-icons/core/assets/bold/gear-six-bold.svg?raw';
@@ -64,6 +66,8 @@ import i_ghost from '@phosphor-icons/core/assets/bold/ghost-bold.svg?raw';
 import i_rocket from '@phosphor-icons/core/assets/bold/rocket-bold.svg?raw';
 
 const SVGS: Record<string, string> = {
+  'lock-simple': i_lock_simple,
+  'backspace': i_backspace,
   'play': i_play,
   'stack': i_stack,
   'gear-six': i_gear_six,

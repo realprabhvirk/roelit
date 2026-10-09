@@ -1,18 +1,20 @@
 import { useRef, useState } from 'preact/hooks';
 import { allDecks, bestScores, lastDeckId, settings, setSetting, ROUND_LENGTHS } from '../state';
-import type { Deck } from '../deck';
+import { cardCount, isLocked, type Deck } from '../deck';
 import { onColor, resolveColor } from '../palette';
 import { Icon } from './icons';
 import { Page, Segmented, Sheet } from './controls';
 import { go, isLandscape } from './router';
 import { unlockAudio } from '../audio';
 import { primeForRound } from './PreRound';
+import { PasscodeSheet } from './Passcode';
 
 // Deliberately uneven tile heights: a repeating rhythm, offset per column.
 const HEIGHTS = [212, 156, 184, 232, 164, 200, 148, 220];
 
 export function PlayTab({ active }: { active: boolean }) {
   const [openId, setOpenId] = useState<string | null>(null);
+  const [lockId, setLockId] = useState<string | null>(null);
   const decks = allDecks.value;
   const cols = isLandscape.value && window.innerWidth > 700 ? 4 : 2;
   const columns: Deck[][] = Array.from({ length: cols }, () => []);
@@ -30,13 +32,22 @@ export function PlayTab({ active }: { active: boolean }) {
                 key={d.id}
                 deck={d}
                 height={HEIGHTS[(r * cols + c * 3) % HEIGHTS.length]}
-                onClick={() => setOpenId(d.id)}
+                onClick={() => (isLocked(d) ? setLockId(d.id) : setOpenId(d.id))}
               />
             ))}
           </div>
         ))}
       </div>
       <DeckSheet deck={open} onClose={() => setOpenId(null)} />
+      <PasscodeSheet
+        open={lockId !== null}
+        title={decks.find((d) => d.id === lockId)?.name ?? 'Locked'}
+        onClose={() => setLockId(null)}
+        onUnlocked={() => {
+          setOpenId(lockId);
+          setLockId(null);
+        }}
+      />
     </Page>
   );
 }
@@ -52,8 +63,8 @@ function DeckTile({ deck, height, onClick }: { deck: Deck; height: number; onCli
       onClick={onClick}
     >
       <div class="deck-tile-top">
-        <Icon name={deck.icon} size={26} />
-        <span class="deck-tile-count">{deck.cards.length}</span>
+        <Icon name={isLocked(deck) ? 'lock-simple' : deck.icon} size={26} />
+        <span class="deck-tile-count">{cardCount(deck)}</span>
       </div>
       <div>
         <div class="deck-tile-name display">{deck.name}</div>
@@ -88,7 +99,7 @@ export function DeckSheet({ deck, onClose }: { deck: Deck | null; onClose: () =>
             <div class="deck-hero-top">
               <Icon name={d.icon} size={28} />
               <div class="stat-line">
-                <span>{d.cards.length} cards</span>
+                <span>{cardCount(d)} cards</span>
                 {bestScores.value[d.id] ? <span>Best {bestScores.value[d.id]}</span> : null}
               </div>
             </div>

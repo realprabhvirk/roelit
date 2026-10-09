@@ -4,6 +4,7 @@ import { load, save, clearAll, remove } from './storage';
 import type { Deck } from './deck';
 import type { Sensitivity } from './tilt';
 import { BUILT_IN_DECKS } from './decks';
+import { crewCards } from './vault';
 
 export type Theme = 'system' | 'light' | 'dark';
 export type VoiceLang = 'en-AU' | 'en-US' | 'en-GB';
@@ -47,7 +48,15 @@ export const customDecks = signal<Deck[]>(
 );
 effect(() => save('customDecks', customDecks.value));
 
-export const allDecks = computed<Deck[]>(() => [...BUILT_IN_DECKS, ...customDecks.value]);
+// Locked built-in decks swap in their real cards once unlocked.
+export const allDecks = computed<Deck[]>(() => [
+  ...BUILT_IN_DECKS.map((d) => {
+    if (d.lockedCount === undefined || !crewCards.value) return d;
+    const { lockedCount: _locked, ...open } = d;
+    return { ...open, cards: crewCards.value };
+  }),
+  ...customDecks.value,
+]);
 
 export function findDeck(id: string | null | undefined): Deck | undefined {
   return id ? allDecks.value.find((d) => d.id === id) : undefined;

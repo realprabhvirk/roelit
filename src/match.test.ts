@@ -16,10 +16,10 @@ describe('numbers', () => {
     expect(wordsToNumbers(['one', 'hundred', 'and', 'eighty', 'degrees'])).toEqual(['180', 'degrees']);
     expect(wordsToNumbers(['one', 'eleven'])).toEqual(['1', '11']);
     expect(wordsToNumbers(['a', 'hundred'])).toEqual(['100']);
-    expect(wordsToNumbers(['six', 'stockade'])).toEqual(['6', 'stockade']);
+    expect(wordsToNumbers(['six', 'example'])).toEqual(['6', 'example']);
   });
   it('folds street abbreviations both ways', () => {
-    expect(tokenise('6 Stockade Crescent')).toEqual(tokenise('6 Stockade Cr'));
+    expect(tokenise('6 Example Crescent')).toEqual(tokenise('6 Example Cr'));
   });
 });
 
@@ -86,8 +86,8 @@ describe('heard: multi-word', () => {
   it('handles numbers spoken as words', () => {
     expect(heard('one eighty degrees', '180 Degrees')).toBe(true);
     expect(heard('one hundred and eighty degrees', '180 Degrees')).toBe(true);
-    expect(heard('one eleven grand terrace', '111 Grand Terrace')).toBe(true);
-    expect(heard('six stockade crescent', '6 Stockade Cr')).toBe(true);
+    expect(heard('one eleven example terrace', '111 Example Terrace')).toBe(true);
+    expect(heard('six example crescent', '6 Example Cr')).toBe(true);
     expect(heard('forty two', '42')).toBe(true);
     expect(heard('farewell twenty twenty four', 'Farewell 2024')).toBe(true);
   });
@@ -98,9 +98,9 @@ describe('heard: multi-word', () => {
 });
 
 describe('heard: aliases', () => {
-  const card = { text: 'Sheahan Perera', aliases: ['SP'] };
+  const card = { text: 'Jane Smith', aliases: ['SP'] };
   it('matches the main text or any alias', () => {
-    expect(heard('sheahan perera', card)).toBe(true);
+    expect(heard('jane smith', card)).toBe(true);
     expect(heard('its sp', card)).toBe(true);
     expect(heard('s p', card)).toBe(true);
   });

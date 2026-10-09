@@ -20,6 +20,7 @@ import { makeVoice, setChromeColor, tiltSensor } from './services';
 import { takePendingVoice } from './PreRound';
 
 const TIME_UP_MS = 1400;
+const EARLY_MS = 700;
 
 function fmt(sec: number): string {
   const m = Math.floor(sec / 60);
@@ -65,6 +66,9 @@ function RoundView({ deck, tilt, voiceOn, record }: { deck: Deck; tilt: boolean;
   const [flash, setFlash] = useState<{ outcome: Outcome; text: string } | null>(null);
   const [secLeft, setSecLeft] = useState(settings.value.roundLength);
   const [timeUp, setTimeUp] = useState(false);
+  const [confirmQuit, setConfirmQuit] = useState(false);
+  const confirming = useRef(false);
+  const early = useRef(false);
   const [voiceStatus, setVoiceStatus] = useState<VoiceStatus>(voice ? voice.status.value : 'off');
   const [cardKey, setCardKey] = useState(0);
   const progressRef = useRef<HTMLDivElement>(null);
@@ -131,7 +135,7 @@ function RoundView({ deck, tilt, voiceOn, record }: { deck: Deck; tilt: boolean;
           else sfx.pass();
           // On iPhone this only lands for edge taps (iOS allows haptics from taps only);
           // Android feels tilts and voice too.
-          haptic(e.outcome === 'correct' ? 'success' : 'medium');
+          haptic(e.outcome === 'correct' ? 'roel' : 'pass');
           setFlash({ outcome: e.outcome, text: cardText(e.card) });
           break;
         case 'second':
@@ -139,17 +143,30 @@ function RoundView({ deck, tilt, voiceOn, record }: { deck: Deck; tilt: boolean;
           if (e.left <= 10 && e.left > 0) sfx.tick();
           break;
         case 'end': {
-          ov.current = { ...ov.current, phase: 'ended', flash: null };
-          // Hold the "Time!" end card a moment, then wrap the clip up.
-          finishRecording(TIME_UP_MS + 900);
-          sfx.buzzer();
-          haptic('error');
+          const isEarly = early.current;
+          ov.current = { ...ov.current, phase: 'ended', flash: null, early: isEarly };
+          // Hold the end card a moment, then wrap the clip up. Ending early
+          // still keeps the video: it goes to results like a full round.
+          finishRecording((isEarly ? EARLY_MS : TIME_UP_MS) + 900);
+          if (!isEarly) {
+            sfx.buzzer();
+            haptic('error');
+          }
           voice?.stop();
           setFlash(null);
           setTimeUp(true);
-          const newBest = recordScore(deck.id, round.score);
-          // Cleared on unmount: quitting during "Time!" must not yank you to results later.
-          endTimer = setTimeout(() => go({ name: 'results', deckId: deck.id, results: round.results, newBest }), TIME_UP_MS);
+          // An early exit doesn't count towards your best.
+          const newBest = isEarly ? false : recordScore(deck.id, round.score);
+          const nothingHappened = isEarly && !round.results.length && !record;
+          log(`round: ${isEarly ? 'ended early' : 'time'} score ${round.score}`);
+          // Cleared on unmount: leaving during "Time!" must not yank you to results later.
+          endTimer = setTimeout(
+            () =>
+              nothingHappened
+                ? go({ name: 'tabs' })
+                : go({ name: 'results', deckId: deck.id, results: round.results, newBest, early: isEarly }),
+            isEarly ? EARLY_MS : TIME_UP_MS,
+          );
           break;
         }
       }
@@ -175,7 +192,7 @@ function RoundView({ deck, tilt, voiceOn, record }: { deck: Deck; tilt: boolean;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowDown') round.mark('correct');
       else if (e.key === 'ArrowUp') round.mark('pass');
-      else if (e.key === 'Escape') quit();
+      else if (e.key === 'Escape') (confirming.current ? keepPlaying() : quit());
       else return;
       e.preventDefault();
     };
@@ -236,14 +253,33 @@ function RoundView({ deck, tilt, voiceOn, record }: { deck: Deck; tilt: boolean;
     };
   }, []);
 
-  // Portrait pauses the round.
+  // Portrait pauses the round (and an open "End round?" keeps it paused).
   useEffect(() => {
-    if (landscape) round.resume();
+    if (landscape && !confirming.current) round.resume();
     else round.pause();
     rerender();
   }, [landscape]);
 
-  const quit = () => go({ name: 'tabs' });
+  // X / End round: ask first. The clock stops while you decide.
+  const quit = () => {
+    if (round.phase === 'ended' || confirming.current) return;
+    confirming.current = true;
+    round.pause();
+    setConfirmQuit(true);
+    log('round: asked to end');
+  };
+  const keepPlaying = () => {
+    confirming.current = false;
+    setConfirmQuit(false);
+    if (isLandscape.value) round.resume();
+    rerender();
+  };
+  const endNow = () => {
+    confirming.current = false;
+    setConfirmQuit(false);
+    early.current = true;
+    round.end();
+  };
 
   const phase = round.phase;
   const card = round.card;
@@ -309,11 +345,28 @@ function RoundView({ deck, tilt, voiceOn, record }: { deck: Deck; tilt: boolean;
 
       {timeUp && (
         <div class="time-up">
-          <span class="display">{STRINGS.time}</span>
+          <span class="display">{early.current ? 'Ended' : STRINGS.time}</span>
         </div>
       )}
 
-      {!landscape && !timeUp && (
+      {confirmQuit && !timeUp && (
+        <div class="quit-confirm" role="alertdialog" aria-label="End this round?">
+          <div class="quit-card">
+            <h2 class="display">End this round?</h2>
+            <p>{recording ? 'The clock is paused. Your video so far gets kept.' : 'The clock is paused.'}</p>
+            <div class="quit-actions">
+              <button class="btn btn-secondary press" onClick={keepPlaying}>
+                Keep playing
+              </button>
+              <button class="btn btn-primary press" data-haptic="medium" onClick={endNow}>
+                End round
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!landscape && !timeUp && !confirmQuit && (
         <div class="overlay-msg">
           <Icon name="device-rotate" size={44} />
           <h2 class="display">{STRINGS.turnSideways}</h2>

@@ -4,7 +4,7 @@
 // only. Android gets navigator.vibrate patterns everywhere.
 import { log } from './debug';
 
-export type Haptic = 'select' | 'light' | 'medium' | 'success' | 'error';
+export type Haptic = 'select' | 'light' | 'medium' | 'success' | 'error' | 'roel' | 'pass';
 
 let enabled = true;
 let el: HTMLLabelElement | null = null;
@@ -26,9 +26,12 @@ const PATTERNS: Record<Haptic, number | number[]> = {
   medium: 18,
   success: [12, 70, 22],
   error: [24, 50, 24, 50, 24],
+  // In-game: two crisp pulses = got it; one long thud = passed. Easy to tell apart blind.
+  roel: [14, 55, 14],
+  pass: [45],
 };
 // iOS ticks per kind (the switch trick has one strength, so rhythm does the talking).
-const TICKS: Record<Haptic, number> = { select: 1, light: 1, medium: 1, success: 2, error: 3 };
+const TICKS: Record<Haptic, number> = { select: 1, light: 1, medium: 1, success: 2, error: 3, roel: 2, pass: 1 };
 
 function tickEl(): HTMLLabelElement {
   if (el) return el;

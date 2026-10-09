@@ -63,7 +63,7 @@ Custom decks: Decks → New deck. Cards are one per line, aliases after a bar: `
 
 - **Voice in home-screen apps is flaky.** iOS has a history of blocking `SpeechRecognition` in standalone PWAs (`service-not-allowed`) or re-asking for permission. If it fails, tilt keeps working, the mic pill says *Voice unavailable*, and Settings explains it. Opening the game in Safari instead usually fixes it. Use **Settings → Test voice** to check.
 - Voice uses Apple's recogniser and may need a connection. It's not on-device-only.
-- **Haptics on iPhone come from taps only.** iOS Safari has no vibration API; the app uses the native switch's system tick (iOS 18+), which iOS only plays inside a tap. So tilts and voice matches don't buzz on iPhone (they do on Android). Settings → Game → Haptics turns them off.
+- **Haptics on iPhone come from taps only.** iOS Safari has no vibration API; the app uses the native switch's system tick (iOS 18+), which iOS only plays inside a tap. So tilts and voice matches don't buzz on iPhone (they do on Android: two crisp pulses for ROEL IT!, one long thud for pass). Reportedly from iOS 26.5 Apple also blocks multi-tick patterns, so on newer iPhones every tap haptic is one tick. Settings → Game → Haptics turns them off.
 - **No orientation lock.** iOS ignores the manifest and `screen.orientation.lock()`. Rotating to portrait mid-round shows "Turn your phone sideways" and pauses the clock.
 - Motion permission: iOS asks once (needs a tap). If you said no, Settings → Apps → Safari → Motion & Orientation Access. A home-screen app may need deleting and re-adding to ask again.
 - With the mic live, iOS can route sound quieter. Sounds are short to keep it sane.
@@ -75,7 +75,7 @@ Toggle **Record video** on the get-ready screen (or Settings → Game). The fron
 
 - **Saving:** iOS doesn't let web apps write to Photos on their own; there's no permission for it. The results screen has **Save to Photos**, which opens the share sheet; tap **Save Video**. Leaving without saving asks twice so a good clip isn't lost by accident.
 - **Voice detection is off during recorded rounds.** The mic goes to the video, and sharing it with the speech recogniser is the kind of iOS conflict that caused freezes. Tilt and taps still score.
-- Quitting mid-round bins the clip. A REC dot shows on the play screen while recording.
+- Ending a round early asks first (**End this round?**, clock paused). The clip is kept and goes to the results screen like a full round; an early end doesn't count towards your best. A REC dot shows on the play screen while recording.
 - Code: `src/camera.ts` (stream), `src/recorder.ts` (overlay drawing + MediaRecorder).
 
 ## Diagnostics

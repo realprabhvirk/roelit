@@ -13,7 +13,7 @@ import { stopCamera } from '../camera';
 import { log } from '../debug';
 import { haptic } from '../haptics';
 
-export function Results({ deckId, results, newBest }: { deckId: string; results: Result[]; newBest: boolean }) {
+export function Results({ deckId, results, newBest, early }: { deckId: string; results: Result[]; newBest: boolean; early?: boolean }) {
   const deck = findDeck(deckId);
   const got = results.filter((r) => r.outcome === 'correct');
   const passed = results.filter((r) => r.outcome === 'pass');
@@ -74,7 +74,7 @@ export function Results({ deckId, results, newBest }: { deckId: string; results:
         <div class="results-head">
           <div class="results-score display">{got.length}</div>
           <div class="results-meta">
-            <div class="deck-name">{deck?.name}</div>
+            <div class="deck-name">{deck?.name}{early ? ' · ended early' : ''}</div>
             <div class="label">{got.length === 0 ? 'Tough room.' : label}</div>
             {newBest ? (
               <div class="best-chip">

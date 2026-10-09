@@ -21,6 +21,8 @@ export type OverlayState = {
   deckName: string;
   deckColor: string;
   onColor: string;
+  /** Round was ended early (end card says ENDED, not TIME!). */
+  early?: boolean;
 };
 
 export type Clip = {
@@ -187,7 +189,7 @@ export function drawFrame(ctx: CanvasRenderingContext2D, video: HTMLVideoElement
     ctx.textAlign = 'left';
     ctx.font = `400 110px ${DISPLAY}`;
     ctx.fillStyle = fg;
-    ctx.fillText(STRINGS.time.toUpperCase(), M + 8, cy);
+    ctx.fillText(o.early ? 'ENDED' : STRINGS.time.toUpperCase(), M + 8, cy);
     ctx.textAlign = 'right';
     ctx.font = `400 92px ${DISPLAY}`;
     ctx.fillText(String(o.score), W - M - 8, cy - 18);

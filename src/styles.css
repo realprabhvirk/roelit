@@ -1700,3 +1700,49 @@ textarea.text-input {
   background: var(--on);
   transform-origin: left center;
 }
+
+/* "End this round?" over the play screen. */
+.quit-confirm {
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px calc(var(--sar) + 20px) 20px calc(var(--sal) + 20px);
+  background: var(--scrim);
+  animation: fade-in 160ms var(--ease) both;
+}
+.quit-card {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 18px;
+  padding: 22px;
+  background: var(--ink-solid);
+  color: var(--paper);
+  animation: rise-in 240ms var(--ease-out) both;
+}
+.quit-card h2 {
+  font-size: 34px;
+}
+.quit-card p {
+  margin-top: 8px;
+  font-size: 15px;
+  opacity: 0.75;
+}
+.quit-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+.quit-actions .btn {
+  height: 50px;
+}
+.quit-actions .btn-secondary {
+  background: rgba(243, 237, 226, 0.14);
+  color: var(--paper);
+}
+.quit-actions .btn-primary {
+  background: var(--tomato);
+  color: var(--paper);
+}

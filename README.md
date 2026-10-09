@@ -42,7 +42,7 @@ Open **Settings → Test tilt** on the phone. Hold it sideways on your forehead,
 
 ## Decks
 
-8 built-in decks (90 cards each) in `src/decks/`. Schema:
+9 built-in decks in `src/decks/`: 8 general decks (90 cards each) plus **The Crew** (inside jokes). Schema:
 
 ```json
 { "id": "animals", "name": "Animals", "color": "forest", "icon": "paw-print",
@@ -50,8 +50,6 @@ Open **Settings → Test tilt** on the phone. Hold it sideways on your forehead,
 ```
 
 `color` is a palette name (`tomato mustard forest ocean plum clay teal slate ink`) or `#RRGGBB`. `icon` is one of the keys in `ICON_KEYS` (`src/ui/icons.tsx`). Aliases help voice matching.
-
-**The Crew** is not bundled. Get `examples/the-crew.json` onto the phone (AirDrop, Files, iCloud), then **Decks → Import from file**. Heads-up: if this repo is public, that file is public too. Move it out of the repo if that matters.
 
 Custom decks: Decks → New deck. Cards are one per line, aliases after a bar: `Spider-Man | Spiderman, Spider Man`. Export shares the JSON via the iOS share sheet so you can move decks between phones.
 
@@ -73,6 +71,7 @@ Custom decks: Decks → New deck. Cards are one per line, aliases after a bar: `
 - Sounds are synthesised with Web Audio (no audio files). On iOS 16.4+ the audio session is set to `playback` when the mic is off so sounds play through the silent switch.
 - Card order is shuffled per deck and persisted, so you won't see repeats across rounds until the deck runs out.
 - `start_url`/`scope` are relative (`./`), so the manifest works on any Pages subpath.
+- The Crew ships as a built-in deck (public in the build and the repo).
 - App icon: flat card-on-head mark drawn in `scripts/icon.svg`, rendered to PNG with resvg.
 
 ## Structure
@@ -85,5 +84,4 @@ src/
   ui/           screens and controls
 public/icons/   generated PNG icons
 scripts/        icon source + generator
-examples/       the-crew.json (import in-app)
 ```

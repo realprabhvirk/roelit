@@ -21,7 +21,7 @@ Phosphor Icons, **bold weight only**, bundled as raw SVG in `src/ui/icons.tsx`.
 - `src/state.ts` persisted signals (settings, custom decks, best scores)
 - `src/ui/*` screens; `router.ts` holds tab + full-screen flow
 - `src/strings.ts` app name and action labels. A correct guess is always "ROEL IT!", never "Correct".
-- Decks: `src/decks/*.json`. The Crew deck lives in `examples/` and is imported in-app, never bundled.
+- Decks: `src/decks/*.json`, registered in `src/decks/index.ts` (The Crew included).
 
 ## Design rules (non-negotiable)
 - Never use neon, glow, gradients, glassmorphism, emoji as icons, AI-generated icons/art, gradient text.

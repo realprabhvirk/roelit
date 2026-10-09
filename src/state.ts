@@ -37,7 +37,12 @@ export function setSetting<K extends keyof Settings>(k: K, v: Settings[K]): void
   settings.value = { ...settings.value, [k]: v };
 }
 
-export const customDecks = signal<Deck[]>(load<Deck[]>('customDecks', []));
+// A custom deck may share an id with a deck that later became built in
+// (e.g. an imported Crew deck). Keep it, under a new id.
+const builtInIds = new Set(BUILT_IN_DECKS.map((d) => d.id));
+export const customDecks = signal<Deck[]>(
+  load<Deck[]>('customDecks', []).map((d) => (builtInIds.has(d.id) ? { ...d, id: `${d.id}-custom` } : d)),
+);
 effect(() => save('customDecks', customDecks.value));
 
 export const allDecks = computed<Deck[]>(() => [...BUILT_IN_DECKS, ...customDecks.value]);

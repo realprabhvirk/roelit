@@ -7,6 +7,7 @@ import actItOut from './act-it-out.json';
 import aroundAustralia from './around-australia.json';
 import brandsApps from './brands-apps.json';
 import jobsTrades from './jobs-trades.json';
+import theCrew from './the-crew.json';
 
 export const BUILT_IN_DECKS: Deck[] = [
   animals,
@@ -17,4 +18,5 @@ export const BUILT_IN_DECKS: Deck[] = [
   aroundAustralia,
   brandsApps,
   jobsTrades,
+  theCrew,
 ] as Deck[];

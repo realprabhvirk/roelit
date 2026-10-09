@@ -272,6 +272,10 @@ p {
   transform: translateY(4px);
   transition: opacity 160ms var(--ease), transform 220ms var(--ease);
 }
+.navbar-title.display {
+  font-size: 22px;
+  font-weight: 400;
+}
 .navbar.scrolled .navbar-title {
   opacity: 1;
   transform: none;

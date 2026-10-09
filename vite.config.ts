@@ -21,6 +21,7 @@ export default defineConfig({
       includeAssets: ['icons/*.png', 'icons/*.svg'],
       manifest: {
         id: './',
+        lang: 'en-AU',
         name: 'ROEL IT!',
         short_name: 'ROEL IT!',
         description: 'Phone on your forehead. Your mates describe it. You roel it.',

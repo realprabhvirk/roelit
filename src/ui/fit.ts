@@ -51,7 +51,7 @@ export function fitText(
   const refW = words.map((w) => measure(w, REF, family));
   const refSpace = measure(' ', REF, family);
   // Small safety margin for sub-pixel differences between canvas and layout.
-  const W = boxW * 0.97;
+  const W = boxW * 0.93;
 
   const attempt = (size: number) => {
     const k = size / REF;

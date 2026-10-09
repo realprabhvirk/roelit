@@ -65,10 +65,11 @@ export function InstallSheet({ open, onClose }: { open: boolean; onClose: () => 
         <li>
           <span class="step-num">2</span>
           <span>
-            Scroll down, tap <b>Add to Home Screen</b>
+            Tap
             <span class="step-icon">
               <Icon name="plus-square" size={20} />
             </span>
+            <b>Add to Home Screen</b>
           </span>
         </li>
         <li>

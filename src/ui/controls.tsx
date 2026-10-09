@@ -1,5 +1,6 @@
 import type { ComponentChildren, JSX } from 'preact';
 import { useEffect, useLayoutEffect, useRef, useState } from 'preact/hooks';
+import { createPortal } from 'preact/compat';
 import { Icon } from './icons';
 
 // ---------- Segmented control ----------
@@ -126,7 +127,7 @@ export function Page({
   return (
     <div class="tab-view" ref={ref} hidden={!active}>
       <header class={'navbar' + (scrolled ? ' scrolled' : '')}>
-        <span class="navbar-title">{title}</span>
+        <span class={'navbar-title' + (brand ? ' display' : '')}>{title}</span>
         {navRight && <div class="navbar-side">{navRight}</div>}
       </header>
       <div class="page">
@@ -205,7 +206,7 @@ export function Sheet({ open, onClose, title, left, right, tall, children, modal
 
   const dragProps = { onPointerDown: onDown, onPointerMove: onMove, onPointerUp: onUp, onPointerCancel: onUp };
 
-  return (
+  return createPortal(
     <div class={'sheet-root' + (shown ? ' open' : '')}>
       <div class="sheet-scrim" onClick={modal ? undefined : onClose} />
       <div
@@ -225,7 +226,8 @@ export function Sheet({ open, onClose, title, left, right, tall, children, modal
         )}
         <div class="sheet-body">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

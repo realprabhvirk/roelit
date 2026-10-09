@@ -33,3 +33,5 @@ export const BUILT_IN_DECKS: Deck[] = [
 /** The Crew's cards, encrypted. Opened with a passcode (see vault.ts). */
 export const CREW_ID = crewLocked.id;
 export const CREW_SEALED = crewLocked.sealed as Sealed;
+/** How many digits the keypad waits for (length only, never the code). */
+export const CREW_CODE_LENGTH: number = (crewLocked as { codeLength?: number }).codeLength ?? 6;

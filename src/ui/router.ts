@@ -8,7 +8,7 @@ export type Tab = 'play' | 'decks' | 'settings';
 export type Screen =
   | { name: 'tabs' }
   | { name: 'pre'; deckId: string }
-  | { name: 'round'; deckId: string; tilt: boolean; voice: boolean }
+  | { name: 'round'; deckId: string; tilt: boolean; voice: boolean; record: boolean }
   | { name: 'results'; deckId: string; results: Result[]; newBest: boolean }
   | { name: 'tilt-test' };
 

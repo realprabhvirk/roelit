@@ -69,6 +69,15 @@ Custom decks: Decks → New deck. Cards are one per line, aliases after a bar: `
 - With the mic live, iOS can route sound quieter. Sounds are short to keep it sane.
 - In the home-screen app, iOS may re-ask for the mic on every recogniser start. So voice only restarts by itself when the last start came back instantly (no prompt). Otherwise the mic pill says **Tap to resume voice**, so a permission prompt never appears out of nowhere mid-game.
 
+## Recording rounds
+
+Toggle **Record video** on the get-ready screen (or Settings → Game). The front camera films the room, which is the side the screen faces, and the clip gets a burned-in ROEL IT! overlay: the mark, timer, score, the current word in the deck's colour band, green/orange flashes, countdown, and a "Time!" end card. 1280×720 MP4 at 30fps, with sound.
+
+- **Saving:** iOS doesn't let web apps write to Photos on their own; there's no permission for it. The results screen has **Save to Photos**, which opens the share sheet; tap **Save Video**. Leaving without saving asks twice so a good clip isn't lost by accident.
+- **Voice detection is off during recorded rounds.** The mic goes to the video, and sharing it with the speech recogniser is the kind of iOS conflict that caused freezes. Tilt and taps still score.
+- Quitting mid-round bins the clip. A REC dot shows on the play screen while recording.
+- Code: `src/camera.ts` (stream), `src/recorder.ts` (overlay drawing + MediaRecorder).
+
 ## Diagnostics
 
 **Settings → Diagnostics** shows a rolling on-device log (taps that didn't land, main-thread stalls, voice and motion events, errors, screens), including the previous session, so it survives a force-quit. Copy or share it when something misbehaves. It never contains codes or card names. Code: `src/debug.ts`.
@@ -82,14 +91,14 @@ Custom decks: Decks → New deck. Cards are one per line, aliases after a bar: `
 - Sounds are synthesised with Web Audio (no audio files). The app leaves the iOS audio session alone: switching it mid-game was a freeze risk and paused people's music. So sounds follow the silent switch, and music keeps playing.
 - Card order is shuffled per deck and persisted, so you won't see repeats across rounds until the deck runs out.
 - `start_url`/`scope` are relative (`./`), so the manifest works on any Pages subpath.
-- **The Crew is locked.** Its cards are AES-GCM encrypted (key from the code via PBKDF2, 600k rounds) in `src/decks/the-crew.locked.json`, so the repo and live site only hold scrambled data. The code isn't stored anywhere in the repo. Enter it once and the phone remembers it; **Decks → The Crew → Lock again** forgets it. A 6-digit code keeps casual snoopers out but can't stop someone determined who downloads the file and brute-forces it.
+- **The Crew is locked.** Its cards are AES-GCM encrypted (key from the code via PBKDF2, 600k rounds) in `src/decks/the-crew.locked.json`, so the repo and live site only hold scrambled data. The code isn't stored anywhere in the repo. Enter it once and the phone remembers it; **Decks → The Crew → Lock again** forgets it. The keypad length follows the code (`codeLength` in the locked file; length only, never the code). A short numeric code can still be brute-forced offline by someone determined; longer is better.
 - App icon: flat card-on-head mark drawn in `scripts/icon.svg`, rendered to PNG with resvg.
 
 ## Editing The Crew
 
 ```bash
 node scripts/crew.mjs unlock <code> > crew.json        # decrypt to edit (don't commit crew.json)
-node scripts/crew.mjs lock crew.json <code>            # re-encrypt into src/decks/the-crew.locked.json
+node scripts/crew.mjs lock crew.json <code>            # re-encrypt (4-12 digits) into src/decks/the-crew.locked.json
 npm run build                                          # then commit the result
 ```
 

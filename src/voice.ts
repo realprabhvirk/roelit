@@ -89,6 +89,16 @@ function markIdle(rec: SR | null): void {
   fn?.();
 }
 
+/** Resolves once no recogniser holds the mic (or after `timeoutMs`). */
+export function voiceIdle(timeoutMs = 1500): Promise<void> {
+  if (!liveRec) return Promise.resolve();
+  const until = Date.now() + timeoutMs;
+  return new Promise((resolve) => {
+    const tick = () => (!liveRec || Date.now() > until ? resolve() : setTimeout(tick, 50));
+    tick();
+  });
+}
+
 /** 'granted' | 'denied' | 'prompt', or 'unknown' if the browser won't say. */
 async function micPermission(): Promise<string> {
   try {

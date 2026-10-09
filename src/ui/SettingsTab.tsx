@@ -11,6 +11,7 @@ import { go } from './router';
 import { makeVoice } from './services';
 import { InstallSheet } from './HelpSheets';
 import { DiagnosticsSheet } from './Diagnostics';
+import { cameraSupported } from '../camera';
 
 declare const __APP_VERSION__: string;
 declare const __BUILD__: string;
@@ -51,6 +52,13 @@ export function SettingsTab({ active }: { active: boolean }) {
           title="Sound"
           trail={<Switch label="Sound" checked={s.sound} onChange={(v) => setSetting('sound', v)} />}
         />
+        {cameraSupported() && (
+          <Row
+            title="Record video"
+            sub="Front camera with the ROEL IT! overlay"
+            trail={<Switch label="Record video" checked={s.record} onChange={(v) => setSetting('record', v)} />}
+          />
+        )}
       </Group>
 
       <Group label="Tilt" foot="Less sensitive needs a bigger nod. If tilting down passes, flip it.">

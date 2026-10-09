@@ -8,6 +8,8 @@ import { sfx } from '../audio';
 import { log } from '../debug';
 import { keepAwake } from '../wakelock';
 import { cardText } from '../match';
+import { cameraStream, stopCamera } from '../camera';
+import { cancelRecording, finishRecording, startRecording, type OverlayState } from '../recorder';
 import type { Deck } from '../deck';
 import type { VoiceStatus } from '../voice';
 import { fitText, type Fit } from './fit';
@@ -24,7 +26,7 @@ function fmt(sec: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-type RoundProps = { deckId: string; tilt: boolean; voice: boolean };
+type RoundProps = { deckId: string; tilt: boolean; voice: boolean; record: boolean };
 
 export function RoundScreen(props: RoundProps) {
   const deck = findDeck(props.deckId);
@@ -36,10 +38,10 @@ export function RoundScreen(props: RoundProps) {
     }
   }, []);
   if (!deck || !deck.cards.length) return null;
-  return <RoundView deck={deck} tilt={props.tilt} voiceOn={props.voice} />;
+  return <RoundView deck={deck} tilt={props.tilt} voiceOn={props.voice} record={props.record} />;
 }
 
-function RoundView({ deck, tilt, voiceOn }: { deck: Deck; tilt: boolean; voiceOn: boolean }) {
+function RoundView({ deck, tilt, voiceOn, record }: { deck: Deck; tilt: boolean; voiceOn: boolean; record: boolean }) {
   const color = resolveColor(deck.color);
   const on = onColor(deck.color);
 
@@ -66,11 +68,36 @@ function RoundView({ deck, tilt, voiceOn }: { deck: Deck; tilt: boolean; voiceOn
   const [cardKey, setCardKey] = useState(0);
   const progressRef = useRef<HTMLDivElement>(null);
   const landscape = isLandscape.value;
+  const [recording, setRecording] = useState(false);
+
+  // What the recording overlay shows; updated from round events, read every frame.
+  const ov = useRef<OverlayState>({
+    phase: 'countdown',
+    paused: false,
+    countdown: 3,
+    word: '',
+    flash: null,
+    score: 0,
+    secLeft: settings.value.roundLength,
+    progress: 1,
+    deckName: deck.name,
+    deckColor: color,
+    onColor: on,
+  });
+  const overlay = (): OverlayState => ({
+    ...ov.current,
+    paused: round.isPaused && round.phase !== 'ended',
+    progress: round.remainingMs() / round.durationMs,
+    secLeft: Math.ceil(round.remainingMs() / 1000),
+    score: round.score,
+  });
 
   // ----- wiring -----
   useEffect(() => {
     let endTimer: ReturnType<typeof setTimeout> | undefined;
-    log(`round: start ${deck.id} tilt=${tilt} voice=${!!voice}`);
+    log(`round: start ${deck.id} tilt=${tilt} voice=${!!voice} record=${record}`);
+    const stream = cameraStream.value;
+    if (record && stream) setRecording(startRecording(stream, overlay, deck.name));
     setChromeColor(color);
     keepAwake(true);
     if (tilt) tiltSensor.acquire();
@@ -78,6 +105,7 @@ function RoundView({ deck, tilt, voiceOn }: { deck: Deck; tilt: boolean; voiceOn
     const off = round.on((e) => {
       switch (e.type) {
         case 'countdown':
+          ov.current = { ...ov.current, phase: 'countdown', countdown: e.n };
           if (e.n === 3) tiltSensor.beginCalibration();
           sfx.countdown();
           rerender();
@@ -89,11 +117,13 @@ function RoundView({ deck, tilt, voiceOn }: { deck: Deck; tilt: boolean; voiceOn
           rerender();
           break;
         case 'card':
+          ov.current = { ...ov.current, phase: 'playing', word: cardText(e.card), flash: null };
           voice?.setCard(e.card);
           setFlash(null);
           setCardKey((k) => k + 1);
           break;
         case 'mark':
+          ov.current = { ...ov.current, phase: 'flash', flash: e.outcome };
           voice?.setCard(null);
           if (e.outcome === 'correct') sfx.correct();
           else sfx.pass();
@@ -104,6 +134,9 @@ function RoundView({ deck, tilt, voiceOn }: { deck: Deck; tilt: boolean; voiceOn
           if (e.left <= 10 && e.left > 0) sfx.tick();
           break;
         case 'end': {
+          ov.current = { ...ov.current, phase: 'ended', flash: null };
+          // Hold the "Time!" end card a moment, then wrap the clip up.
+          finishRecording(TIME_UP_MS + 900);
           sfx.buzzer();
           voice?.stop();
           setFlash(null);
@@ -181,6 +214,11 @@ function RoundView({ deck, tilt, voiceOn }: { deck: Deck; tilt: boolean; voiceOn
       document.removeEventListener('visibilitychange', onVis);
       cancelAnimationFrame(raf);
       clearTimeout(endTimer);
+      // Left before the buzzer (quit, or the deck vanished): bin the clip, free the camera.
+      if (round.phase !== 'ended') {
+        cancelRecording();
+        stopCamera();
+      }
       for (const fn of [off, offTilt, () => offVoice?.(), () => voice?.stop(),
         () => round.dispose(), () => keepAwake(false), () => setChromeColor(null), () => tilt && tiltSensor.release()]) {
         try {
@@ -223,6 +261,11 @@ function RoundView({ deck, tilt, voiceOn }: { deck: Deck; tilt: boolean; voiceOn
               <Icon name="check" size={16} />
               <b>{round.score}</b>
             </div>
+            {recording && (
+              <span class="round-rec" aria-label="Recording">
+                <span class="rec-dot" /> REC
+              </span>
+            )}
           </div>
           <div class={'round-timer' + (hurry ? ' hurry' : '')} role="timer">
             {fmt(secLeft)}

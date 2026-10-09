@@ -4,6 +4,8 @@ import type { JSX } from 'preact';
 
 import i_lock_simple from '@phosphor-icons/core/assets/bold/lock-simple-bold.svg?raw';
 import i_backspace from '@phosphor-icons/core/assets/bold/backspace-bold.svg?raw';
+import i_video_camera from '@phosphor-icons/core/assets/bold/video-camera-bold.svg?raw';
+import i_video_camera_slash from '@phosphor-icons/core/assets/bold/video-camera-slash-bold.svg?raw';
 import i_play from '@phosphor-icons/core/assets/bold/play-bold.svg?raw';
 import i_stack from '@phosphor-icons/core/assets/bold/stack-bold.svg?raw';
 import i_gear_six from '@phosphor-icons/core/assets/bold/gear-six-bold.svg?raw';
@@ -66,6 +68,8 @@ import i_ghost from '@phosphor-icons/core/assets/bold/ghost-bold.svg?raw';
 import i_rocket from '@phosphor-icons/core/assets/bold/rocket-bold.svg?raw';
 
 const SVGS: Record<string, string> = {
+  'video-camera': i_video_camera,
+  'video-camera-slash': i_video_camera_slash,
   'lock-simple': i_lock_simple,
   'backspace': i_backspace,
   'play': i_play,

@@ -1,10 +1,11 @@
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { findDeck, micAsked, motionPermission, settings } from '../state';
+import { findDeck, micAsked, motionPermission, settings, setSetting } from '../state';
+import { cameraStatus, cameraStream, cameraSupported, startCamera, stopCamera } from '../camera';
 import { onColor, resolveColor } from '../palette';
 import { STRINGS } from '../strings';
 import { motionNeedsPermission, motionSupported, requestMotionPermission } from '../tilt';
-import { voiceSupported, type VoiceListener } from '../voice';
+import { voiceIdle, voiceSupported, type VoiceListener } from '../voice';
 import { unlockAudio } from '../audio';
 import { log } from '../debug';
 import { CloseButton } from './controls';
@@ -44,7 +45,13 @@ export function stopPendingVoice(): void {
  * same instant is asking for trouble. Motion goes first, voice after it settles.
  */
 export function primeForRound(): void {
-  const wantVoice = voiceWanted() && micAsked.value;
+  // Recording takes the mic for the video, so voice sits those rounds out.
+  const wantCamera = settings.value.record && cameraSupported();
+  const wantVoice = !wantCamera && voiceWanted() && micAsked.value;
+  const next = () => {
+    if (wantCamera) void startCamera();
+    else if (wantVoice) startVoice();
+  };
   if (motionNeedsPermission() && motionPermission.value === 'granted') {
     // Already allowed once: re-request inside this gesture (resolves silently).
     log('motion: re-request');
@@ -54,12 +61,10 @@ export function primeForRound(): void {
         if (r === 'denied') motionPermission.value = 'denied';
         else tiltSensor.refresh();
       })
-      .finally(() => {
-        if (wantVoice) startVoice();
-      });
+      .finally(next);
     return;
   }
-  if (wantVoice) startVoice();
+  next();
 }
 
 const UPRIGHT_HOLD_MS = 700;
@@ -89,7 +94,10 @@ export function PreRound({ deckId }: { deckId: string }) {
   const needMotion =
     !skipTilt && motionSupported() && motionNeedsPermission() && motionPermission.value !== 'granted';
   const motionDenied = needMotion && motionPermission.value === 'denied';
-  const needMic = !needMotion && !skipVoice && voiceWanted() && !micAsked.value;
+  const canRecord = cameraSupported();
+  const recording = settings.value.record && canRecord;
+  const cam = cameraStatus.value;
+  const needMic = !needMotion && !skipVoice && !recording && voiceWanted() && !micAsked.value;
   const ready = !needMotion && !needMic;
   const landscape = isLandscape.value;
 
@@ -97,9 +105,10 @@ export function PreRound({ deckId }: { deckId: string }) {
     if (started.current) return;
     started.current = true;
     if (manual) unlockAudio();
-    const voice = settings.value.voice && !skipVoice && voiceWanted();
+    const record = settings.value.record && cameraStatus.value === 'on';
+    const voice = settings.value.voice && !skipVoice && voiceWanted() && !record;
     if (!voice) stopPendingVoice();
-    go({ name: 'round', deckId, tilt: !skipTilt, voice });
+    go({ name: 'round', deckId, tilt: !skipTilt, voice, record });
   };
 
   // Auto-start: landscape + phone held roughly upright for a moment.
@@ -114,7 +123,9 @@ export function PreRound({ deckId }: { deckId: string }) {
         return;
       }
       if (uprightSince.current == null) uprightSince.current = s.t;
-      if (s.t - uprightSince.current > UPRIGHT_HOLD_MS) begin(false);
+      // Wait for the camera if a recording was asked for.
+      const camPending = settings.value.record && cameraStatus.value === 'starting';
+      if (s.t - uprightSince.current > UPRIGHT_HOLD_MS && !camPending) begin(false);
     });
   }, [ready, skipTilt, hasTilt]);
 
@@ -130,7 +141,24 @@ export function PreRound({ deckId }: { deckId: string }) {
 
   const close = () => {
     stopPendingVoice();
+    stopCamera();
     go({ name: 'tabs' });
+  };
+
+  const toggleRecord = async () => {
+    unlockAudio();
+    if (settings.value.record) {
+      setSetting('record', false);
+      stopCamera();
+      if (voiceWanted() && micAsked.value) startVoice();
+      return;
+    }
+    setSetting('record', true);
+    // Let the voice recogniser fully release the mic before the camera asks for it.
+    stopPendingVoice();
+    await voiceIdle();
+    const ok = await startCamera();
+    if (!ok) setSetting('record', false);
   };
 
   if (!deck) return null;
@@ -197,6 +225,7 @@ export function PreRound({ deckId }: { deckId: string }) {
     );
   } else {
     body = (
+      <>
       <div class="pre-status" role="status">
         {!landscape ? (
           <>
@@ -212,11 +241,24 @@ export function PreRound({ deckId }: { deckId: string }) {
           </>
         )}
       </div>
+      {recording && cam === 'on' && <p class="pre-note">Recording starts with the countdown. Voice is off while recording: the mic's on the video.</p>}
+      {cam === 'denied' && <p class="pre-note">Camera's blocked. Settings → Apps → Safari → Camera, then try again.</p>}
+      {cam === 'error' && <p class="pre-note">Couldn't start the camera. Try again, or play without recording.</p>}
+      </>
     );
     actions = (
-      <button class="btn btn-primary press" onClick={() => begin(true)}>
-        Start
-      </button>
+      <>
+        {canRecord && (
+          <button class={'rec-toggle press' + (recording ? ' on' : '')} aria-pressed={recording} onClick={toggleRecord}>
+            <Icon name={recording ? 'video-camera' : 'video-camera-slash'} size={20} />
+            <span>{cam === 'starting' ? 'Starting camera…' : recording ? 'Recording on' : 'Record video'}</span>
+            {recording && cam === 'on' && <span class="rec-dot" />}
+          </button>
+        )}
+        <button class="btn btn-primary press" onClick={() => begin(true)}>
+          Start
+        </button>
+      </>
     );
   }
 
@@ -225,7 +267,7 @@ export function PreRound({ deckId }: { deckId: string }) {
       <CloseButton onClick={close} />
       <div class="pre">
         <div class="pre-main">
-          <HeadIllustration fg={on} bg={color} />
+          {recording && cam === 'on' ? <CameraPreview /> : <HeadIllustration fg={on} bg={color} />}
           <div>
             <h1 class="display">{title}</h1>
             <p class="pre-sub" style={{ marginTop: 10 }}>
@@ -239,4 +281,20 @@ export function PreRound({ deckId }: { deckId: string }) {
       <MotionHelpSheet open={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>
   );
+}
+
+/** Live, mirrored front-camera preview (the recording itself is true view). */
+function CameraPreview() {
+  const ref = useRef<HTMLVideoElement>(null);
+  const stream = cameraStream.value;
+  useEffect(() => {
+    const v = ref.current;
+    if (!v || !stream) return;
+    v.srcObject = stream;
+    void v.play().catch(() => {});
+    return () => {
+      v.srcObject = null;
+    };
+  }, [stream]);
+  return <video ref={ref} class="pre-preview" muted playsInline autoplay aria-label="Camera preview" />;
 }

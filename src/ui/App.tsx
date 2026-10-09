@@ -68,7 +68,7 @@ export function App({ updateReady, onUpdate }: { updateReady: boolean; onUpdate:
       </div>
 
       {s.name === 'pre' && <PreRound key={'pre' + screenNonce} deckId={s.deckId} />}
-      {s.name === 'round' && <RoundScreen key={'round' + screenNonce} deckId={s.deckId} tilt={s.tilt} voice={s.voice} />}
+      {s.name === 'round' && <RoundScreen key={'round' + screenNonce} deckId={s.deckId} tilt={s.tilt} voice={s.voice} record={s.record} />}
       {s.name === 'results' && <Results deckId={s.deckId} results={s.results} newBest={s.newBest} />}
       {s.name === 'tilt-test' && <TiltTest />}
 

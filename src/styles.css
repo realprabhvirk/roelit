@@ -1561,3 +1561,126 @@ textarea.text-input {
 .fullscreen.tilt-test {
   touch-action: manipulation;
 }
+.pin-dots.many {
+  gap: 11px;
+}
+.pin-dots.many span {
+  width: 13px;
+  height: 13px;
+}
+
+/* ---------- Recording ---------- */
+
+.rec-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: inherit;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--on) 45%, transparent);
+}
+.rec-toggle.on {
+  background: color-mix(in srgb, var(--on) 16%, transparent);
+  box-shadow: none;
+}
+.rec-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--tomato);
+  box-shadow: 0 0 0 2px var(--on);
+}
+.pre-note {
+  margin-top: 10px;
+  font-size: 14px;
+  opacity: 0.85;
+  max-width: 40ch;
+}
+.pre-preview {
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 14px;
+  background: var(--ink-solid);
+  /* Mirrored like a selfie; the saved video is true view. */
+  transform: scaleX(-1);
+}
+@media (orientation: landscape) {
+  .pre-preview {
+    width: 38%;
+    max-width: 280px;
+  }
+}
+.round-rec {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.round-rec .rec-dot {
+  animation: blink 1.6s ease-in-out infinite;
+}
+
+/* Results: the recorded clip */
+.clip-card {
+  margin: 18px 0 4px;
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 12px;
+}
+.clip-card video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  background: var(--ink-solid);
+  object-fit: contain;
+}
+.clip-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.clip-note {
+  font-size: 14px;
+  color: var(--ink-2);
+  margin-top: 10px;
+}
+.clip-note.warn {
+  color: var(--bad);
+  font-weight: 600;
+}
+@media (min-width: 640px) {
+  .clip-card {
+    max-width: 560px;
+  }
+}
+/* Short landscape: video and Save side by side so Save is never below the fold. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .clip-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    max-width: none;
+  }
+  .clip-card video {
+    width: auto;
+    height: 160px;
+    flex: none;
+  }
+  .clip-side {
+    flex: 1;
+    min-width: 0;
+  }
+  .clip-side .clip-actions {
+    margin-top: 0;
+  }
+}

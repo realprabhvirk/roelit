@@ -1,25 +1,29 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { unlockCrew } from '../vault';
+import { CREW_CODE_LENGTH } from '../decks';
 import { sfx } from '../audio';
 import { log } from '../debug';
 import { Icon } from './icons';
 import { Sheet } from './controls';
 
-const LENGTH = 6;
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'back'];
 
 /** Passcode keypad for locked decks. Custom keypad: no iOS keyboard popping up. */
 export function PasscodeSheet({
   open,
   title,
+  length = CREW_CODE_LENGTH,
   onClose,
   onUnlocked,
 }: {
   open: boolean;
   title: string;
+  /** Digits to wait for before checking. */
+  length?: number;
   onClose: () => void;
   onUnlocked: () => void;
 }) {
+  const LENGTH = length;
   const [digits, setDigits] = useState('');
   const [busy, setBusy] = useState(false);
   const [shake, setShake] = useState(false);
@@ -88,7 +92,7 @@ export function PasscodeSheet({
       <p class="prose" style={{ textAlign: 'center', marginTop: 8 }}>
         Enter the code
       </p>
-      <div class={'pin-dots' + (shake ? ' shake' : '')} role="status" aria-label={`${digits.length} of ${LENGTH} digits`}>
+      <div class={'pin-dots' + (shake ? ' shake' : '') + (LENGTH > 6 ? ' many' : '')} role="status" aria-label={`${digits.length} of ${LENGTH} digits`}>
         {Array.from({ length: LENGTH }, (_, i) => (
           <span key={i} class={i < digits.length ? 'on' : ''} />
         ))}

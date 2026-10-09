@@ -67,7 +67,13 @@ export function primeForRound(): void {
   next();
 }
 
-const UPRIGHT_HOLD_MS = 700;
+// Auto-start rules. Holding the phone sideways to read the screen looks a lot
+// like holding it on your forehead, so: a grace period on open, any tap
+// pauses it, it only arms once the phone has moved away from upright (lifting
+// it to your head), and then it needs a full second held still.
+const UPRIGHT_HOLD_MS = 1000;
+const OPEN_GRACE_MS = 2500;
+const TAP_PAUSE_MS = 3000;
 
 export function PreRound({ deckId }: { deckId: string }) {
   const deck = findDeck(deckId);
@@ -77,6 +83,9 @@ export function PreRound({ deckId }: { deckId: string }) {
   const [hasTilt, setHasTilt] = useState(tiltSensor.hasData);
   const [upright, setUpright] = useState(false);
   const uprightSince = useRef<number | null>(null);
+  const armed = useRef(false);
+  const quietUntil = useRef(performance.now() + OPEN_GRACE_MS);
+  const [hold, setHold] = useState(0);
   const started = useRef(false);
 
   const color = resolveColor(deck?.color ?? 'slate');
@@ -116,16 +125,20 @@ export function PreRound({ deckId }: { deckId: string }) {
     if (!ready || skipTilt) return;
     return tiltSensor.subscribe((s) => {
       if (!hasTilt) setHasTilt(true);
+      if (!s.upright) armed.current = true;
       const ok = s.upright && isLandscape.value;
       setUpright(ok);
-      if (!ok) {
+      // Wait for the camera if a recording was asked for.
+      const camPending = settings.value.record && cameraStatus.value === 'starting';
+      if (!ok || !armed.current || camPending || performance.now() < quietUntil.current) {
         uprightSince.current = null;
+        setHold(0);
         return;
       }
       if (uprightSince.current == null) uprightSince.current = s.t;
-      // Wait for the camera if a recording was asked for.
-      const camPending = settings.value.record && cameraStatus.value === 'starting';
-      if (s.t - uprightSince.current > UPRIGHT_HOLD_MS && !camPending) begin(false);
+      const held = s.t - uprightSince.current;
+      setHold(Math.min(1, held / UPRIGHT_HOLD_MS));
+      if (held > UPRIGHT_HOLD_MS) begin(false);
     });
   }, [ready, skipTilt, hasTilt]);
 
@@ -233,7 +246,7 @@ export function PreRound({ deckId }: { deckId: string }) {
           </>
         ) : hasTilt && !skipTilt ? (
           <>
-            <Icon name="phone" size={20} /> {upright ? 'Hold still…' : 'Hold it up to start'}
+            <Icon name="phone" size={20} /> {hold > 0 ? 'Starting…' : upright && armed.current ? 'Hold still…' : 'Tap Start, or lift it onto your forehead'}
           </>
         ) : (
           <>
@@ -241,6 +254,11 @@ export function PreRound({ deckId }: { deckId: string }) {
           </>
         )}
       </div>
+      {hold > 0 && (
+        <div class="hold-bar" aria-hidden="true">
+          <div style={{ transform: `scaleX(${hold})` }} />
+        </div>
+      )}
       {recording && cam === 'on' && <p class="pre-note">Recording starts with the countdown. Voice is off while recording: the mic's on the video.</p>}
       {cam === 'denied' && <p class="pre-note">Camera's blocked. Settings → Apps → Safari → Camera, then try again.</p>}
       {cam === 'error' && <p class="pre-note">Couldn't start the camera. Try again, or play without recording.</p>}
@@ -263,7 +281,18 @@ export function PreRound({ deckId }: { deckId: string }) {
   }
 
   return (
-    <div class="fullscreen" style={{ background: color, color: on, ['--on' as any]: on, ['--deck' as any]: color }}>
+    <div
+      class="fullscreen"
+      style={{ background: color, color: on, ['--on' as any]: on, ['--deck' as any]: color }}
+      // Touching the screen means you're still setting up: hold off auto-start.
+      onPointerDown={() => {
+        quietUntil.current = performance.now() + TAP_PAUSE_MS;
+        // ...and needs a fresh lift onto the forehead afterwards.
+        armed.current = false;
+        uprightSince.current = null;
+        setHold(0);
+      }}
+    >
       <CloseButton onClick={close} />
       <div class="pre">
         <div class="pre-main">

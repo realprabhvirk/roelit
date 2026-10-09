@@ -23,6 +23,7 @@ import i_arrow_counter_clockwise from '@phosphor-icons/core/assets/bold/arrow-co
 import i_info from '@phosphor-icons/core/assets/bold/info-bold.svg?raw';
 import i_warning from '@phosphor-icons/core/assets/bold/warning-bold.svg?raw';
 import i_hand_tap from '@phosphor-icons/core/assets/bold/hand-tap-bold.svg?raw';
+import i_plus_square from '@phosphor-icons/core/assets/bold/plus-square-bold.svg?raw';
 import i_export from '@phosphor-icons/core/assets/bold/export-bold.svg?raw';
 import i_trophy from '@phosphor-icons/core/assets/bold/trophy-bold.svg?raw';
 import i_waveform from '@phosphor-icons/core/assets/bold/waveform-bold.svg?raw';
@@ -85,6 +86,7 @@ const SVGS: Record<string, string> = {
   'warning': i_warning,
   'hand-tap': i_hand_tap,
   'export': i_export,
+  'plus-square': i_plus_square,
   'trophy': i_trophy,
   'waveform': i_waveform,
   'phone': i_phone,

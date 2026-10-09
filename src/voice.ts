@@ -58,6 +58,16 @@ export class VoiceListener {
 
   constructor(private opts: VoiceOptions) {}
 
+  /** Swap callbacks (the listener is started in a tap, then handed to the round). */
+  setHandlers(h: Pick<VoiceOptions, 'onMatch' | 'onTranscript'>): void {
+    this.opts.onMatch = h.onMatch;
+    this.opts.onTranscript = h.onTranscript;
+  }
+
+  get isBlocked(): boolean {
+    return this.blocked;
+  }
+
   setLang(lang: string): void {
     this.opts.lang = lang;
   }

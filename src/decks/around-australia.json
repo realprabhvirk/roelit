@@ -1,0 +1,171 @@
+{
+  "id": "around-australia",
+  "name": "Around Australia",
+  "color": "clay",
+  "icon": "map-trifold",
+  "description": "Places, slang, and growing up in Queensland.",
+  "cards": [
+    "Brisbane",
+    "Gold Coast",
+    "Sunshine Coast",
+    "Cairns",
+    "Townsville",
+    "Toowoomba",
+    "Byron Bay",
+    "Noosa",
+    "Surfers Paradise",
+    "Great Barrier Reef",
+    {
+      "text": "Uluru",
+      "aliases": [
+        "Ayers Rock"
+      ]
+    },
+    "Sydney Opera House",
+    "Harbour Bridge",
+    "Bondi Beach",
+    "Melbourne",
+    "Perth",
+    "Adelaide",
+    "Darwin",
+    "Hobart",
+    "Canberra",
+    {
+      "text": "Fraser Island",
+      "aliases": [
+        "K'gari"
+      ]
+    },
+    "Whitsundays",
+    "Daintree",
+    "Dreamworld",
+    "Movie World",
+    {
+      "text": "Wet'n'Wild",
+      "aliases": [
+        "Wet and Wild"
+      ]
+    },
+    "Sea World",
+    "Australia Zoo",
+    "Big Banana",
+    "Big Pineapple",
+    "State of Origin",
+    "Maroons",
+    "Broncos",
+    "The Gabba",
+    "Suncorp Stadium",
+    "Melbourne Cup",
+    "AFL Grand Final",
+    "Boxing Day Test",
+    "Bathurst",
+    "Schoolies",
+    "Thongs",
+    "Budgie Smugglers",
+    {
+      "text": "Esky",
+      "aliases": [
+        "Eskie"
+      ]
+    },
+    {
+      "text": "Ute",
+      "aliases": [
+        "Utility"
+      ]
+    },
+    {
+      "text": "Servo",
+      "aliases": [
+        "Petrol Station"
+      ]
+    },
+    {
+      "text": "Bottle-o",
+      "aliases": [
+        "Bottle Shop",
+        "Bottlo"
+      ]
+    },
+    "Arvo",
+    {
+      "text": "Brekkie",
+      "aliases": [
+        "Breakfast"
+      ]
+    },
+    {
+      "text": "Maccas",
+      "aliases": [
+        "McDonald's"
+      ]
+    },
+    {
+      "text": "Woolies",
+      "aliases": [
+        "Woolworths"
+      ]
+    },
+    "Bunnings",
+    "Kmart",
+    "Big W",
+    "JB Hi-Fi",
+    "Coles",
+    "Aldi",
+    "Qantas",
+    "Hills Hoist",
+    "Akubra",
+    "RM Williams",
+    "Fair Dinkum",
+    "No Worries",
+    "Strewth",
+    "She'll Be Right",
+    "Ripper",
+    "Bogan",
+    "Larrikin",
+    "Sheila",
+    "Mate",
+    {
+      "text": "Yeah Nah",
+      "aliases": [
+        "Yeah No"
+      ]
+    },
+    {
+      "text": "Drop Bear",
+      "aliases": [
+        "Drop Bears"
+      ]
+    },
+    "Footy",
+    "Cricket",
+    "Thong Throwing",
+    "Backyard Cricket",
+    "Pub Trivia",
+    "Sausage Sizzle at Bunnings",
+    "Australia Day",
+    "Anzac Day",
+    "Two-Up",
+    {
+      "text": "Ekka",
+      "aliases": [
+        "The Ekka"
+      ]
+    },
+    "Strawberry Sundae",
+    "Gold Coast Light Rail",
+    {
+      "text": "XXXX",
+      "aliases": [
+        "Four X",
+        "4X"
+      ]
+    },
+    "Bundaberg Rum",
+    "Cane Fields",
+    "Mango Season",
+    "Storm Season",
+    "Green Ants",
+    "Daylight Saving"
+  ]
+}

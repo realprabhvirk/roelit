@@ -1,0 +1,95 @@
+{
+  "id": "the-crew",
+  "name": "The Crew",
+  "color": "ink",
+  "icon": "users-three",
+  "description": "Inside jokes. If you know, you know.",
+  "cards": [
+    "111 Grand Terrace",
+    "6 Stockade Cr",
+    "24 Geoff Philp",
+    "4 Lilyvale",
+    "93 Fryar Road",
+    "34 Feathertail",
+    "32 Lima Street",
+    {
+      "text": "Sheahan Perera",
+      "aliases": [
+        "SP"
+      ]
+    },
+    "Abbe Packaging",
+    "Sales Manager",
+    "Jason",
+    "Gold Coast Airport",
+    "Farewell 2024",
+    {
+      "text": "NAK",
+      "aliases": [
+        "Nak",
+        "Knack"
+      ]
+    },
+    "Queensland Rail",
+    "Beenleigh Line",
+    {
+      "text": "Son of Adam",
+      "aliases": [
+        "SOA"
+      ]
+    },
+    "Sparky",
+    "Electrician",
+    {
+      "text": "Roel",
+      "aliases": [
+        "Son of Roel",
+        "SOR"
+      ]
+    },
+    "The Blue Roof",
+    {
+      "text": "Terrance Dougherty",
+      "aliases": [
+        "STD",
+        "Son of Terrance"
+      ]
+    },
+    "Dougherty Tiling",
+    "180 Degrees",
+    "CM Wakeboarding",
+    {
+      "text": "Gurinderpal",
+      "aliases": [
+        "GPS"
+      ]
+    },
+    "Tusitala",
+    "Juan Carlos",
+    "Douglas",
+    "HJ",
+    "SP's Kid",
+    "42",
+    {
+      "text": "NIK NAK Chocolate",
+      "aliases": [
+        "Nik Nak",
+        "Nik Nak Chocolate"
+      ]
+    },
+    "Roeling It",
+    "The Group Chat",
+    "Who's Driving",
+    "Last Train Home",
+    "Missed the Beenleigh Train",
+    "Airport Pickup",
+    "Tiling Job",
+    "Wakeboard Stack",
+    "Smoko",
+    "The Blue Roof Party",
+    "Farewell Speech",
+    "SP's Sales Pitch",
+    "Electrician Callout",
+    "Grand Terrace BBQ"
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "id": "famous-people",
+  "name": "Famous People",
+  "color": "ocean",
+  "icon": "microphone-stage",
+  "description": "Athletes, singers, legends and the internet.",
+  "cards": [
+    "Steve Irwin",
+    "Hugh Jackman",
+    "Margot Robbie",
+    "Chris Hemsworth",
+    "Nicole Kidman",
+    "Cate Blanchett",
+    "Kylie Minogue",
+    "Russell Crowe",
+    "Heath Ledger",
+    "Rebel Wilson",
+    "John Farnham",
+    "Jimmy Barnes",
+    "Keith Urban",
+    "Sia",
+    "Tones and I",
+    "Troye Sivan",
+    "Kevin Parker",
+    "Delta Goodrem",
+    {
+      "text": "Dame Edna",
+      "aliases": [
+        "Edna"
+      ]
+    },
+    "Paul Hogan",
+    "Don Bradman",
+    "Cathy Freeman",
+    "Ian Thorpe",
+    "Ash Barty",
+    "Nick Kyrgios",
+    "Sam Kerr",
+    "Shane Warne",
+    "Pat Cummins",
+    "Mick Fanning",
+    "Daniel Ricciardo",
+    "Wally Lewis",
+    "Johnathan Thurston",
+    "Ariarne Titmus",
+    "Kurt Fearnley",
+    "Ned Kelly",
+    {
+      "text": "Captain Cook",
+      "aliases": [
+        "James Cook"
+      ]
+    },
+    "Julia Gillard",
+    "Bob Hawke",
+    "Kevin Rudd",
+    {
+      "text": "Albo",
+      "aliases": [
+        "Anthony Albanese",
+        "Albanese"
+      ]
+    },
+    "Taylor Swift",
+    {
+      "text": "Beyoncé",
+      "aliases": [
+        "Beyonce"
+      ]
+    },
+    "Rihanna",
+    "Drake",
+    "Ed Sheeran",
+    "Adele",
+    "Elton John",
+    "Michael Jackson",
+    "Elvis",
+    "Freddie Mercury",
+    "Dolly Parton",
+    "Lady Gaga",
+    "Harry Styles",
+    "Billie Eilish",
+    "Kanye West",
+    "Snoop Dogg",
+    "Eminem",
+    "Bruno Mars",
+    "The Beatles",
+    {
+      "text": "AC/DC",
+      "aliases": [
+        "ACDC"
+      ]
+    },
+    "Cristiano Ronaldo",
+    "Lionel Messi",
+    "Usain Bolt",
+    "Serena Williams",
+    "Roger Federer",
+    "LeBron James",
+    "Michael Jordan",
+    "Tiger Woods",
+    "Muhammad Ali",
+    "Simone Biles",
+    "Albert Einstein",
+    "Isaac Newton",
+    "Shakespeare",
+    "Cleopatra",
+    "Napoleon",
+    "Abraham Lincoln",
+    "Queen Elizabeth",
+    "King Charles",
+    "Leonardo da Vinci",
+    "Mona Lisa",
+    "Elon Musk",
+    "Mark Zuckerberg",
+    "Bill Gates",
+    "Steve Jobs",
+    {
+      "text": "Oprah",
+      "aliases": [
+        "Oprah Winfrey"
+      ]
+    },
+    "Kim Kardashian",
+    {
+      "text": "MrBeast",
+      "aliases": [
+        "Mr Beast"
+      ]
+    },
+    "Gordon Ramsay",
+    "David Attenborough",
+    "Mr Bean"
+  ]
+}

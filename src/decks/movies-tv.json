@@ -1,0 +1,141 @@
+{
+  "id": "movies-tv",
+  "name": "Movies & TV",
+  "color": "plum",
+  "icon": "film-slate",
+  "description": "Big screen, small screen, and Bluey.",
+  "cards": [
+    "Bluey",
+    "Neighbours",
+    {
+      "text": "Home and Away",
+      "aliases": [
+        "Home & Away"
+      ]
+    },
+    {
+      "text": "Kath & Kim",
+      "aliases": [
+        "Kath and Kim"
+      ]
+    },
+    "Crocodile Dundee",
+    "Mad Max",
+    "Finding Nemo",
+    "The Castle",
+    "Muriel's Wedding",
+    "Babe",
+    "Happy Feet",
+    "Australia",
+    "Wolf Creek",
+    "Priscilla",
+    "The Wiggles",
+    "Play School",
+    {
+      "text": "Hey Hey It's Saturday",
+      "aliases": [
+        "Hey Hey"
+      ]
+    },
+    "MasterChef",
+    "The Block",
+    {
+      "text": "Married at First Sight",
+      "aliases": [
+        "MAFS"
+      ]
+    },
+    "Gogglebox",
+    "Survivor",
+    "Big Brother",
+    "Love Island",
+    "The Bachelor",
+    "Utopia",
+    "Rake",
+    "Summer Heights High",
+    "Housos",
+    "Upper Middle Bogan",
+    "Harry Potter",
+    "Star Wars",
+    "Titanic",
+    "Jaws",
+    "Shrek",
+    "Frozen",
+    "The Lion King",
+    "Toy Story",
+    "Jurassic Park",
+    "Back to the Future",
+    {
+      "text": "The Lord of the Rings",
+      "aliases": [
+        "Lord of the Rings",
+        "LOTR"
+      ]
+    },
+    "Barbie",
+    "Oppenheimer",
+    "Top Gun",
+    "Rocky",
+    "The Godfather",
+    "Pulp Fiction",
+    "Forrest Gump",
+    "The Matrix",
+    "Inception",
+    "Avatar",
+    "Gladiator",
+    "Mean Girls",
+    "Home Alone",
+    "Elf",
+    "Die Hard",
+    "Ghostbusters",
+    {
+      "text": "E.T.",
+      "aliases": [
+        "ET"
+      ]
+    },
+    "Grease",
+    "Dirty Dancing",
+    {
+      "text": "Spider-Man",
+      "aliases": [
+        "Spiderman",
+        "Spider Man"
+      ]
+    },
+    "Batman",
+    "Superman",
+    "Iron Man",
+    "Wonder Woman",
+    "The Avengers",
+    "Deadpool",
+    "Minions",
+    "Pirates of the Caribbean",
+    "James Bond",
+    "Friends",
+    "The Office",
+    "Seinfeld",
+    "The Simpsons",
+    "Family Guy",
+    "Breaking Bad",
+    "Game of Thrones",
+    "Stranger Things",
+    "Squid Game",
+    "The Crown",
+    "Succession",
+    "Peaky Blinders",
+    "SpongeBob",
+    {
+      "text": "Scooby-Doo",
+      "aliases": [
+        "Scooby"
+      ]
+    },
+    "Sesame Street",
+    "Peppa Pig",
+    "Gilmore Girls",
+    "Grey's Anatomy",
+    "Love Actually",
+    "Paddington"
+  ]
+}

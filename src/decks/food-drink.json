@@ -1,0 +1,138 @@
+{
+  "id": "food-drink",
+  "name": "Food & Drink",
+  "color": "mustard",
+  "icon": "fork-knife",
+  "description": "Brekkie to the servo pie at 2am.",
+  "cards": [
+    "Vegemite",
+    "Tim Tam",
+    {
+      "text": "Snag",
+      "aliases": [
+        "Sausage"
+      ]
+    },
+    "Sausage Sizzle",
+    "Meat Pie",
+    "Sausage Roll",
+    "Chicko Roll",
+    "Pavlova",
+    "Lamington",
+    "Anzac Biscuit",
+    "Fairy Bread",
+    "Golden Gaytime",
+    "Paddle Pop",
+    "Barramundi",
+    "Prawns",
+    "Bundaberg Ginger Beer",
+    "Milo",
+    "Weet-Bix",
+    "Tim Tam Slam",
+    "Smashed Avo",
+    "Flat White",
+    "Long Black",
+    "Iced Coffee",
+    "Bush Tucker",
+    "Dagwood Dog",
+    "Potato Scallop",
+    "Chicken Salt",
+    {
+      "text": "Hot Chips",
+      "aliases": [
+        "Chips"
+      ]
+    },
+    {
+      "text": "Parma",
+      "aliases": [
+        "Parmy",
+        "Parmi",
+        "Parmigiana"
+      ]
+    },
+    "Halloumi",
+    "Caramello Koala",
+    "Freddo Frog",
+    "Shapes",
+    "Twisties",
+    "Cheezels",
+    "Arnott's",
+    "Bubble O' Bill",
+    "Splice",
+    "Banana Bread",
+    "Damper",
+    "Pizza",
+    "Burger",
+    "Hot Dog",
+    "Tacos",
+    "Sushi",
+    "Ramen",
+    "Pad Thai",
+    "Butter Chicken",
+    "Dumplings",
+    "Kebab",
+    "Fish and Chips",
+    "Spaghetti Bolognese",
+    "Lasagne",
+    "Mac and Cheese",
+    {
+      "text": "Roast Chook",
+      "aliases": [
+        "Roast Chicken"
+      ]
+    },
+    {
+      "text": "Toasted Sandwich",
+      "aliases": [
+        "Toastie",
+        "Jaffle"
+      ]
+    },
+    "Bacon and Eggs",
+    "Pancakes",
+    "Waffles",
+    "Croissant",
+    "Avocado",
+    "Mango",
+    "Pineapple",
+    "Watermelon",
+    "Banana",
+    "Coconut",
+    "Lemon",
+    "Strawberry",
+    "Broccoli",
+    "Brussels Sprouts",
+    "Chocolate",
+    "Ice Cream",
+    "Donut",
+    "Cheesecake",
+    "Popcorn",
+    {
+      "text": "Fairy Floss",
+      "aliases": [
+        "Cotton Candy"
+      ]
+    },
+    "Birthday Cake",
+    "Honey",
+    "Peanut Butter",
+    "Nutella",
+    "Beer",
+    {
+      "text": "Goon",
+      "aliases": [
+        "Goon Bag",
+        "Cask Wine"
+      ]
+    },
+    "Champagne",
+    "Margarita",
+    "Espresso Martini",
+    "Bubble Tea",
+    "Energy Drink",
+    "Lemonade",
+    "Hot Chocolate",
+    "Smoothie"
+  ]
+}

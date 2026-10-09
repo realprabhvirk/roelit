@@ -1,0 +1,157 @@
+{
+  "id": "jobs-trades",
+  "name": "Jobs & Trades",
+  "color": "teal",
+  "icon": "hard-hat",
+  "description": "Who you call, and who you avoid calling.",
+  "cards": [
+    {
+      "text": "Sparky",
+      "aliases": [
+        "Electrician"
+      ]
+    },
+    "Plumber",
+    {
+      "text": "Chippy",
+      "aliases": [
+        "Carpenter"
+      ]
+    },
+    "Tiler",
+    {
+      "text": "Brickie",
+      "aliases": [
+        "Bricklayer"
+      ]
+    },
+    "Concreter",
+    "Roofer",
+    "Painter",
+    "Plasterer",
+    "Glazier",
+    "Landscaper",
+    "Arborist",
+    "Pool Guy",
+    "Mechanic",
+    "Panel Beater",
+    "Diesel Fitter",
+    "Boilermaker",
+    "Welder",
+    "Fitter and Turner",
+    "Crane Operator",
+    "Tradie",
+    "Apprentice",
+    "Foreman",
+    "Traffic Controller",
+    {
+      "text": "Lollipop Lady",
+      "aliases": [
+        "Lollipop Man"
+      ]
+    },
+    {
+      "text": "Garbo",
+      "aliases": [
+        "Garbage Collector",
+        "Garbage Man"
+      ]
+    },
+    {
+      "text": "Postie",
+      "aliases": [
+        "Postman"
+      ]
+    },
+    "Courier",
+    {
+      "text": "Truckie",
+      "aliases": [
+        "Truck Driver"
+      ]
+    },
+    "Bus Driver",
+    "Train Driver",
+    "Pilot",
+    "Flight Attendant",
+    "Air Traffic Controller",
+    "Ship Captain",
+    "Lifeguard",
+    "Surf Lifesaver",
+    "Firefighter",
+    {
+      "text": "Police Officer",
+      "aliases": [
+        "Cop",
+        "Police"
+      ]
+    },
+    "Paramedic",
+    "Nurse",
+    "Doctor",
+    "Surgeon",
+    "Dentist",
+    "Vet",
+    {
+      "text": "Physio",
+      "aliases": [
+        "Physiotherapist"
+      ]
+    },
+    {
+      "text": "Chiro",
+      "aliases": [
+        "Chiropractor"
+      ]
+    },
+    "Pharmacist",
+    "Optometrist",
+    "Psychologist",
+    "Teacher",
+    "Principal",
+    {
+      "text": "Uni Lecturer",
+      "aliases": [
+        "Lecturer",
+        "Professor"
+      ]
+    },
+    "Librarian",
+    "Scientist",
+    "Astronaut",
+    "Engineer",
+    "Architect",
+    "Lawyer",
+    "Judge",
+    "Accountant",
+    "Banker",
+    "Real Estate Agent",
+    "Sales Manager",
+    "Barista",
+    "Bartender",
+    "Chef",
+    "Waiter",
+    "Baker",
+    "Butcher",
+    "Hairdresser",
+    "Barber",
+    "Tattoo Artist",
+    "Personal Trainer",
+    "Influencer",
+    "YouTuber",
+    "DJ",
+    "Photographer",
+    "Journalist",
+    "Weather Presenter",
+    "Farmer",
+    "Jackaroo",
+    "Shearer",
+    "Miner",
+    "Fisherman",
+    "Zookeeper",
+    "Park Ranger",
+    "Magician",
+    "Clown",
+    "Politician"
+  ]
+}

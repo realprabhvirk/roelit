@@ -20,6 +20,8 @@ export type Settings = {
   /** Record rounds with the front camera (toggled on the get-ready screen). */
   record: boolean;
   haptics: boolean;
+  /** Manual fix if a phone's recordings still come out upside down. */
+  flipVideo: boolean;
 };
 
 export const ROUND_LENGTHS = [30, 60, 90, 120] as const;
@@ -34,6 +36,7 @@ const DEFAULTS: Settings = {
   theme: 'system',
   record: false,
   haptics: true,
+  flipVideo: false,
 };
 
 export const settings = signal<Settings>({ ...DEFAULTS, ...load<Partial<Settings>>('settings', {}) });

@@ -1,7 +1,7 @@
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { findDeck, micAsked, motionPermission, settings, setSetting } from '../state';
-import { cameraStatus, cameraStream, cameraSupported, startCamera, stopCamera } from '../camera';
+import { cameraStatus, cameraStream, cameraSupported, noteFrame, startCamera, stopCamera } from '../camera';
 import { onColor, resolveColor } from '../palette';
 import { STRINGS } from '../strings';
 import { motionNeedsPermission, motionSupported, requestMotionPermission } from '../tilt';
@@ -321,7 +321,10 @@ function CameraPreview() {
     if (!v || !stream) return;
     v.srcObject = stream;
     void v.play().catch(() => {});
+    // Learn how this phone delivers frames while you're holding it either way.
+    const t = setInterval(() => noteFrame(v), 100);
     return () => {
+      clearInterval(t);
       v.srcObject = null;
     };
   }, [stream]);

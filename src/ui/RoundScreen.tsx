@@ -9,7 +9,8 @@ import { haptic } from '../haptics';
 import { log } from '../debug';
 import { keepAwake } from '../wakelock';
 import { cardText } from '../match';
-import { cameraStream, stopCamera } from '../camera';
+import { cameraStream, frameMode, stopCamera } from '../camera';
+import { frameRotation, screenAngle } from '../videoOrientation';
 import { cancelRecording, finishRecording, startRecording, type OverlayState } from '../recorder';
 import type { Deck } from '../deck';
 import type { VoiceStatus } from '../voice';
@@ -102,7 +103,10 @@ function RoundView({ deck, tilt, voiceOn, record }: { deck: Deck; tilt: boolean;
     let endTimer: ReturnType<typeof setTimeout> | undefined;
     log(`round: start ${deck.id} tilt=${tilt} voice=${!!voice} record=${record}`);
     const stream = cameraStream.value;
-    if (record && stream) setRecording(startRecording(stream, overlay, deck.name));
+    if (record && stream)
+      setRecording(
+        startRecording(stream, overlay, deck.name, () => frameRotation(frameMode.value, screenAngle(), settings.value.flipVideo)),
+      );
     setChromeColor(color);
     keepAwake(true);
     if (tilt) tiltSensor.acquire();

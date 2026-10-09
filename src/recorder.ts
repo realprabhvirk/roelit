@@ -7,6 +7,7 @@ import { log } from './debug';
 import { fitText, type Fit } from './ui/fit';
 import { INK, PAPER, PALETTE } from './palette';
 import { STRINGS } from './strings';
+import { noteFrame } from './camera';
 
 export type OverlayState = {
   phase: 'countdown' | 'playing' | 'flash' | 'ended';
@@ -132,15 +133,23 @@ function bigCentered(ctx: CanvasRenderingContext2D, text: string, cx: number, cy
   ctx.fillText(text, cx, cy + size * 0.04);
 }
 
-export function drawFrame(ctx: CanvasRenderingContext2D, video: HTMLVideoElement | null, o: OverlayState): void {
+export function drawFrame(ctx: CanvasRenderingContext2D, video: HTMLVideoElement | null, o: OverlayState, rotation = 0): void {
   // Camera, cover-fitted. True view (not mirrored) so the room reads right.
   ctx.fillStyle = INK;
   ctx.fillRect(0, 0, W, H);
   if (video && video.readyState >= 2 && video.videoWidth) {
-    const s = Math.max(W / video.videoWidth, H / video.videoHeight);
+    // Rotate the frame upright (both landscape directions), then cover-fit.
+    const quarter = rotation === 90 || rotation === 270;
+    const fw = quarter ? video.videoHeight : video.videoWidth;
+    const fh = quarter ? video.videoWidth : video.videoHeight;
+    const s = Math.max(W / fw, H / fh);
+    ctx.save();
+    ctx.translate(W / 2, H / 2);
+    if (rotation) ctx.rotate((rotation * Math.PI) / 180);
     const dw = video.videoWidth * s;
     const dh = video.videoHeight * s;
-    ctx.drawImage(video, (W - dw) / 2, (H - dh) / 2, dw, dh);
+    ctx.drawImage(video, -dw / 2, -dh / 2, dw, dh);
+    ctx.restore();
   }
 
   // Top left: the mark.
@@ -261,7 +270,12 @@ function stamp(): string {
 }
 
 /** Start recording the round. Returns false if this device can't. */
-export function startRecording(stream: MediaStream, overlay: () => OverlayState, deckName: string): boolean {
+export function startRecording(
+  stream: MediaStream,
+  overlay: () => OverlayState,
+  deckName: string,
+  rotation: () => number = () => 0,
+): boolean {
   cancelRecording();
   discardClip();
   try {
@@ -282,7 +296,7 @@ export function startRecording(stream: MediaStream, overlay: () => OverlayState,
     void video.play().catch((e) => log(`rec: video play ${String(e).slice(0, 60)}`));
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('no 2d context');
-    drawFrame(ctx, video, overlay());
+    drawFrame(ctx, video, overlay(), rotation());
 
     const out = canvas.captureStream(30);
     stream.getAudioTracks().forEach((t) => out.addTrack(t));
@@ -311,7 +325,8 @@ export function startRecording(stream: MediaStream, overlay: () => OverlayState,
     rec.onerror = (e) => log(`rec: error ${String((e as any)?.error?.name ?? e)}`);
     const loop = () => {
       try {
-        drawFrame(ctx, video, overlay());
+        noteFrame(video);
+        drawFrame(ctx, video, overlay(), rotation());
       } catch (err) {
         log(`rec: draw error ${String(err).slice(0, 80)}`);
       }
@@ -321,7 +336,7 @@ export function startRecording(stream: MediaStream, overlay: () => OverlayState,
     rec.start(1000);
     session = s;
     clip.value = { status: 'recording' };
-    log(`rec: started ${s.type}`);
+    log(`rec: started ${s.type}, rotation ${rotation()}`);
     return true;
   } catch (e) {
     log(`rec: couldn't start ${String(e).slice(0, 120)}`);

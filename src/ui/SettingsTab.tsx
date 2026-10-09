@@ -66,6 +66,13 @@ export function SettingsTab({ active }: { active: boolean }) {
             trail={<Switch label="Record video" checked={s.record} onChange={(v) => setSetting('record', v)} />}
           />
         )}
+        {cameraSupported() && (
+          <Row
+            title="Flip recorded video"
+            sub="Only if your clips come out upside down"
+            trail={<Switch label="Flip recorded video" checked={s.flipVideo} onChange={(v) => setSetting('flipVideo', v)} />}
+          />
+        )}
       </Group>
 
       <Group label="Tilt" foot="Less sensitive needs a bigger nod. If tilting down passes, flip it.">

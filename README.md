@@ -48,7 +48,7 @@ Open **Settings → Test tilt** on the phone. Hold it sideways on your forehead,
 
 ## Decks
 
-9 built-in decks in `src/decks/`: 8 general decks (90 cards each) plus **The Crew** (inside jokes), which is passcode-locked. Schema:
+9 built-in decks in `src/decks/`: 8 general decks (90 cards each) plus **SPORRENCESON** (inside jokes; internally `the-crew`), which is passcode-locked. Schema:
 
 ```json
 { "id": "animals", "name": "Animals", "color": "forest", "icon": "paw-print",
@@ -72,6 +72,7 @@ Custom decks: Decks → New deck. Cards are one per line, aliases after a bar: `
 ## Recording rounds
 
 Toggle **Record video** on the get-ready screen (or Settings → Game). The front camera films the room, which is the side the screen faces, and the clip gets a burned-in ROEL IT! overlay: the mark, timer, score, the current word in the deck's colour band, green/orange flashes, countdown, and a "Time!" end card. 1280×720 MP4 at 30fps, with sound.
+- **Orientation:** the app learns how the phone delivers camera frames (by comparing frame shape with how the phone's held) and rotates the picture so it's upright in either landscape direction, even if you flip mid-round. If a phone still records upside down, Settings → Game → **Flip recorded video**. Logic: `src/videoOrientation.ts`.
 
 - **Saving:** iOS doesn't let web apps write to Photos on their own; there's no permission for it. The results screen has **Save to Photos**, which opens the share sheet; tap **Save Video**. Leaving without saving asks twice so a good clip isn't lost by accident.
 - **Voice detection is off during recorded rounds.** The mic goes to the video, and sharing it with the speech recogniser is the kind of iOS conflict that caused freezes. Tilt and taps still score.

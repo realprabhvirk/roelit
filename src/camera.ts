@@ -2,6 +2,8 @@
 // session (pre-round preview, then the recording), stopped when you leave.
 import { signal } from '@preact/signals';
 import { log } from './debug';
+import { load, save } from './storage';
+import { inferMode, type FrameMode } from './videoOrientation';
 
 export type CameraStatus = 'off' | 'starting' | 'on' | 'denied' | 'unsupported' | 'error';
 
@@ -75,4 +77,27 @@ export function stopCamera(): void {
   }
   cameraStream.value = null;
   if (cameraStatus.value === 'on' || cameraStatus.value === 'starting') cameraStatus.value = 'off';
+}
+
+// ---------------------------------------------------------------------------
+// Learn how this phone hands us camera frames (see videoOrientation.ts).
+
+export const frameMode = signal<FrameMode>(load<FrameMode>('frameMode', 'follows'));
+let pendingMode: FrameMode | null = null;
+let pendingCount = 0;
+
+/** Feed a frame's size; after a steady run of the same reading, remember it. */
+export function noteFrame(video: HTMLVideoElement): void {
+  const m = inferMode(video.videoWidth, video.videoHeight, innerWidth > innerHeight);
+  if (!m) return;
+  if (m === pendingMode) pendingCount++;
+  else {
+    pendingMode = m;
+    pendingCount = 1;
+  }
+  if (pendingCount >= 20 && m !== frameMode.value) {
+    frameMode.value = m;
+    save('frameMode', m);
+    log(`camera: frames are ${m} (${video.videoWidth}x${video.videoHeight}, screen ${innerWidth}x${innerHeight})`);
+  }
 }

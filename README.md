@@ -10,11 +10,17 @@ Static PWA built for iPhone (Add to Home Screen). No backend, no accounts, no an
 npm install
 npm run dev      # http://localhost:5173
 npm test         # Vitest: matching, tilt state machine, round engine
-npm run build    # outputs dist/
+npm run build    # builds to dist/ and copies the finished site to the repo root
 npm run preview  # serve the production build
 ```
 
 No phone handy? Arrow keys work (↓ = ROEL IT!, ↑ = pass), so do taps on the left/right edge of the play screen, and **Settings → Test tilt** has a simulate slider.
+
+## Hosting
+
+The repo root **is** the built site (`index.html`, `assets/`, `sw.js`, …), so any static host can serve the repo as-is with no build step. Source HTML lives in `src/index.html`.
+
+**After changing code, run `npm run build` and commit the regenerated root files**, or the live site won't change.
 
 ## Deploy to GitHub Pages
 

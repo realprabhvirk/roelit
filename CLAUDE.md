@@ -9,6 +9,7 @@ Phosphor Icons, **bold weight only**, bundled as raw SVG in `src/ui/icons.tsx`.
 
 ## Run
 - `npm install`, `npm run dev`, `npm test`, `npm run build`
+- Vite root is `src/` (source HTML: `src/index.html`). `npm run build` also copies `dist/` to the repo root, so the repo is a ready-to-serve static site. Always rebuild and commit the root build files after code changes.
 - `npm run icons` regenerates `public/icons/*` from `scripts/icon.svg`
 - Desktop testing: arrow keys (↓ ROEL IT!, ↑ pass), tap screen edges, Settings → Test tilt has a simulate slider.
 

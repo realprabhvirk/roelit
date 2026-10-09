@@ -2,14 +2,23 @@
 import { defineConfig } from 'vite';
 import preact from '@preact/preset-vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { fileURLToPath } from 'node:url';
 import pkg from './package.json' with { type: 'json' };
 
 // GitHub Pages serves from /<repo>/. The deploy workflow sets BASE_PATH;
 // locally it's just "/".
 const base = process.env.BASE_PATH || '/';
 
+// Source HTML lives in src/ so the repo root can hold the built site.
+// That way a host serving the repo as-is (no build step) still works.
 export default defineConfig({
+  root: 'src',
+  publicDir: '../public',
   base,
+  build: {
+    outDir: '../dist',
+    emptyOutDir: true,
+  },
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
@@ -46,5 +55,6 @@ export default defineConfig({
   ],
   test: {
     environment: 'node',
+    root: fileURLToPath(new URL('.', import.meta.url)),
   },
 });

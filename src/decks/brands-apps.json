@@ -1,0 +1,138 @@
+{
+  "id": "brands-apps",
+  "name": "Brands & Apps",
+  "color": "slate",
+  "icon": "storefront",
+  "description": "Logos you see in your sleep.",
+  "cards": [
+    "Apple",
+    "Samsung",
+    "Google",
+    "Microsoft",
+    "Amazon",
+    "Netflix",
+    "Spotify",
+    "YouTube",
+    "TikTok",
+    "Instagram",
+    "Snapchat",
+    "Facebook",
+    "WhatsApp",
+    {
+      "text": "Messenger",
+      "aliases": [
+        "Facebook Messenger"
+      ]
+    },
+    {
+      "text": "X",
+      "aliases": [
+        "Twitter"
+      ]
+    },
+    "Reddit",
+    "LinkedIn",
+    "Pinterest",
+    "Discord",
+    "Twitch",
+    "Uber",
+    "Uber Eats",
+    "DoorDash",
+    "Menulog",
+    "Airbnb",
+    "Tinder",
+    "Hinge",
+    "Bumble",
+    "Zoom",
+    "Google Maps",
+    "ChatGPT",
+    "Duolingo",
+    "Candy Crush",
+    "Pokémon Go",
+    "Minecraft",
+    "Fortnite",
+    "Roblox",
+    "PlayStation",
+    "Xbox",
+    "Nintendo Switch",
+    "Afterpay",
+    "PayPal",
+    {
+      "text": "Commonwealth Bank",
+      "aliases": [
+        "CommBank",
+        "CBA"
+      ]
+    },
+    "Westpac",
+    "Telstra",
+    "Optus",
+    "Canva",
+    "Atlassian",
+    "Seek",
+    {
+      "text": "realestate.com.au",
+      "aliases": [
+        "realestate"
+      ]
+    },
+    {
+      "text": "McDonald's",
+      "aliases": [
+        "Maccas",
+        "McDonalds"
+      ]
+    },
+    "KFC",
+    "Hungry Jack's",
+    "Red Rooster",
+    {
+      "text": "Guzman y Gomez",
+      "aliases": [
+        "GYG",
+        "Guzman"
+      ]
+    },
+    "Grill'd",
+    "Domino's",
+    "Subway",
+    "Starbucks",
+    "Boost Juice",
+    "Nike",
+    "Adidas",
+    "Lululemon",
+    "Cotton On",
+    "Billabong",
+    "Rip Curl",
+    "Quiksilver",
+    "Bonds",
+    {
+      "text": "Uggs",
+      "aliases": [
+        "Ugg Boots",
+        "Ugg"
+      ]
+    },
+    "Crocs",
+    "Coca-Cola",
+    "Pepsi",
+    "Red Bull",
+    "Monster",
+    "Cadbury",
+    "Lego",
+    "Barbie",
+    "IKEA",
+    "Tesla",
+    "Toyota",
+    "Holden",
+    "Ford",
+    "Ferrari",
+    "Lamborghini",
+    "Rolex",
+    "Louis Vuitton",
+    "Gucci",
+    "Dyson",
+    "Thermomix",
+    "GoPro"
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "id": "animals",
+  "name": "Animals",
+  "color": "forest",
+  "icon": "paw-print",
+  "description": "Furry, scaly, and a few that will kill you.",
+  "cards": [
+    "Kangaroo",
+    "Koala",
+    "Wombat",
+    "Platypus",
+    "Echidna",
+    "Emu",
+    "Kookaburra",
+    "Cassowary",
+    "Quokka",
+    {
+      "text": "Tasmanian Devil",
+      "aliases": [
+        "Tassie Devil"
+      ]
+    },
+    "Dingo",
+    {
+      "text": "Possum",
+      "aliases": [
+        "Opossum"
+      ]
+    },
+    "Magpie",
+    {
+      "text": "Ibis",
+      "aliases": [
+        "Bin Chicken"
+      ]
+    },
+    "Cockatoo",
+    "Galah",
+    "Crocodile",
+    "Goanna",
+    "Cane Toad",
+    {
+      "text": "Redback Spider",
+      "aliases": [
+        "Redback"
+      ]
+    },
+    {
+      "text": "Huntsman",
+      "aliases": [
+        "Huntsman Spider"
+      ]
+    },
+    "Blue-Tongue Lizard",
+    {
+      "text": "Funnel-Web",
+      "aliases": [
+        "Funnel Web Spider"
+      ]
+    },
+    "Box Jellyfish",
+    "Great White Shark",
+    "Dugong",
+    "Sea Turtle",
+    "Stingray",
+    "Octopus",
+    "Seahorse",
+    "Penguin",
+    "Flamingo",
+    "Pelican",
+    "Owl",
+    "Bald Eagle",
+    "Peacock",
+    "Ostrich",
+    "Parrot",
+    "Seagull",
+    "Chicken",
+    "Elephant",
+    "Giraffe",
+    "Hippo",
+    "Rhino",
+    "Zebra",
+    "Lion",
+    "Tiger",
+    "Cheetah",
+    "Gorilla",
+    "Chimpanzee",
+    "Sloth",
+    "Panda",
+    "Polar Bear",
+    "Grizzly Bear",
+    "Wolf",
+    "Fox",
+    "Raccoon",
+    "Skunk",
+    "Hedgehog",
+    "Squirrel",
+    "Camel",
+    "Llama",
+    "Alpaca",
+    "Goat",
+    "Sheep",
+    "Pig",
+    "Cow",
+    "Horse",
+    "Donkey",
+    "Rabbit",
+    "Guinea Pig",
+    "Hamster",
+    "Goldfish",
+    "Golden Retriever",
+    {
+      "text": "Sausage Dog",
+      "aliases": [
+        "Dachshund"
+      ]
+    },
+    "Cat",
+    "Bat",
+    "Snail",
+    "Butterfly",
+    "Bee",
+    "Mosquito",
+    "Cockroach",
+    "Dolphin",
+    "Whale",
+    "Jellyfish",
+    "Lobster",
+    "Frog",
+    "Chameleon",
+    "Komodo Dragon",
+    {
+      "text": "T-Rex",
+      "aliases": [
+        "Tyrannosaurus"
+      ]
+    }
+  ]
+}

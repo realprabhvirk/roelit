@@ -1,0 +1,314 @@
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { findDeck, recordScore, settings } from '../state';
+import { onColor, resolveColor } from '../palette';
+import { STRINGS } from '../strings';
+import { CardQueue, Round, type Outcome } from '../game';
+import { THRESHOLDS, TiltDetector } from '../tilt';
+import { sfx, setAudioSessionForMic } from '../audio';
+import { keepAwake } from '../wakelock';
+import { cardText } from '../match';
+import type { VoiceStatus } from '../voice';
+import { fitText, type Fit } from './fit';
+import { Icon } from './icons';
+import { go, isLandscape } from './router';
+import { makeVoice, setChromeColor, tiltSensor } from './services';
+import { takePendingVoice } from './PreRound';
+
+const TIME_UP_MS = 1400;
+
+function fmt(sec: number): string {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+export function RoundScreen({ deckId, tilt, voice: voiceOn }: { deckId: string; tilt: boolean; voice: boolean }) {
+  const deck = findDeck(deckId)!;
+  const color = resolveColor(deck.color);
+  const on = onColor(deck.color);
+
+  const round = useMemo(
+    () =>
+      new Round({
+        queue: new CardQueue(deck.id, deck.cards),
+        durationMs: settings.value.roundLength * 1000,
+      }),
+    [],
+  );
+  const detector = useMemo(() => new TiltDetector({ threshold: THRESHOLDS[settings.value.sensitivity] }), []);
+  const voice = useMemo(() => {
+    if (!voiceOn) return null;
+    return takePendingVoice() ?? makeVoice({});
+  }, []);
+
+  const [, force] = useState(0);
+  const rerender = () => force((n) => n + 1);
+  const [flash, setFlash] = useState<{ outcome: Outcome; text: string } | null>(null);
+  const [secLeft, setSecLeft] = useState(settings.value.roundLength);
+  const [timeUp, setTimeUp] = useState(false);
+  const [voiceStatus, setVoiceStatus] = useState<VoiceStatus>(voice ? voice.status.value : 'off');
+  const [cardKey, setCardKey] = useState(0);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const landscape = isLandscape.value;
+
+  // ----- wiring -----
+  useEffect(() => {
+    setChromeColor(color);
+    keepAwake(true);
+    if (tilt) tiltSensor.start();
+
+    const off = round.on((e) => {
+      switch (e.type) {
+        case 'countdown':
+          if (e.n === 3) tiltSensor.beginCalibration();
+          sfx.countdown();
+          rerender();
+          break;
+        case 'start':
+          sfx.go();
+          tiltSensor.endCalibration();
+          detector.reset();
+          rerender();
+          break;
+        case 'card':
+          voice?.setCard(e.card);
+          setFlash(null);
+          setCardKey((k) => k + 1);
+          break;
+        case 'mark':
+          voice?.setCard(null);
+          if (e.outcome === 'correct') sfx.correct();
+          else sfx.pass();
+          setFlash({ outcome: e.outcome, text: cardText(e.card) });
+          break;
+        case 'second':
+          setSecLeft(e.left);
+          if (e.left <= 10 && e.left > 0) sfx.tick();
+          break;
+        case 'end': {
+          sfx.buzzer();
+          voice?.stop();
+          setAudioSessionForMic(false);
+          setFlash(null);
+          setTimeUp(true);
+          const newBest = recordScore(deck.id, round.score);
+          setTimeout(() => go({ name: 'results', deckId: deck.id, results: round.results, newBest }), TIME_UP_MS);
+          break;
+        }
+      }
+    });
+
+    let offVoice: (() => void) | undefined;
+    if (voice) {
+      voice.setHandlers({ onMatch: () => round.mark('correct') });
+      const unsub = voice.status.subscribe((s) => setVoiceStatus(s));
+      if (voice.status.value === 'off' && !voice.isBlocked) voice.start();
+      offVoice = unsub;
+    }
+
+    const offTilt = tilt
+      ? tiltSensor.subscribe((s) => {
+          const blocked = !round.canMark || !isLandscape.value;
+          const dir = detector.feed(s.pitch, s.t, blocked);
+          if (dir) round.mark(dir === 'down' ? 'correct' : 'pass');
+        })
+      : () => {};
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowDown') round.mark('correct');
+      else if (e.key === 'ArrowUp') round.mark('pass');
+      else if (e.key === 'Escape') quit();
+      else return;
+      e.preventDefault();
+    };
+    window.addEventListener('keydown', onKey);
+
+    const onVis = () => {
+      if (document.visibilityState === 'hidden') {
+        round.pause();
+        voice?.stop();
+      } else {
+        if (isLandscape.value) round.resume();
+        if (voice && round.phase !== 'ended') voice.start();
+      }
+      rerender();
+    };
+    document.addEventListener('visibilitychange', onVis);
+
+    // Stop iOS rubber-banding / pinch on the game surface.
+    const block = (e: Event) => e.preventDefault();
+    document.addEventListener('touchmove', block, { passive: false });
+    document.addEventListener('gesturestart', block);
+
+    if (isLandscape.value) round.begin();
+    else {
+      round.pause();
+      round.begin();
+    }
+
+    let raf = 0;
+    const loop = () => {
+      const el = progressRef.current;
+      if (el) el.style.transform = `scaleX(${round.remainingMs() / round.durationMs})`;
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+
+    return () => {
+      off();
+      offTilt();
+      offVoice?.();
+      voice?.stop();
+      setAudioSessionForMic(false);
+      round.dispose();
+      keepAwake(false);
+      setChromeColor(null);
+      cancelAnimationFrame(raf);
+      window.removeEventListener('keydown', onKey);
+      document.removeEventListener('visibilitychange', onVis);
+      document.removeEventListener('touchmove', block);
+      document.removeEventListener('gesturestart', block);
+    };
+  }, []);
+
+  // Portrait pauses the round.
+  useEffect(() => {
+    if (landscape) round.resume();
+    else round.pause();
+    rerender();
+  }, [landscape]);
+
+  const quit = () => go({ name: 'tabs' });
+
+  const phase = round.phase;
+  const card = round.card;
+  const hurry = phase !== 'countdown' && secLeft <= 10 && !timeUp;
+
+  return (
+    <div
+      class="fullscreen"
+      style={{ background: color, color: on, ['--on' as any]: on }}
+    >
+      <div class="round">
+        <div class="progress">
+          <div ref={progressRef} />
+        </div>
+        <div class="round-top">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <button class="icon-btn press" onClick={quit} aria-label="End round">
+              <Icon name="x" size={22} />
+            </button>
+            <div class="round-score" aria-label={`Score ${round.score}`}>
+              <Icon name="check" size={16} />
+              <b>{round.score}</b>
+            </div>
+          </div>
+          <div class={'round-timer' + (hurry ? ' hurry' : '')} role="timer">
+            {fmt(secLeft)}
+          </div>
+        </div>
+
+        {phase === 'countdown' ? (
+          <div class="countdown display" aria-live="assertive">
+            <span key={round.countdown}>{round.countdown}</span>
+          </div>
+        ) : (
+          card && <Word key={cardKey} text={cardText(card)} />
+        )}
+
+        <button class="tap-zone left" aria-label={STRINGS.pass} onClick={() => round.mark('pass')} />
+        <button class="tap-zone right" aria-label={STRINGS.correct} onClick={() => round.mark('correct')} />
+
+        <div class="round-foot">
+          <span class="edge-hint">
+            <Icon name="arrow-bend-up-right" size={16} style={{ transform: 'scaleX(-1)' }} /> Pass
+          </span>
+          <MicPill on={!!voice} status={voiceStatus} />
+          <span class="edge-hint">
+            {STRINGS.correct} <Icon name="check" size={16} />
+          </span>
+        </div>
+      </div>
+
+      {flash && (
+        <div class={'flash ' + flash.outcome} role="status">
+          <div class="display">{flash.outcome === 'correct' ? STRINGS.correct : STRINGS.pass}</div>
+          <div class="flash-word">{flash.text}</div>
+        </div>
+      )}
+
+      {timeUp && (
+        <div class="time-up">
+          <span class="display">{STRINGS.time}</span>
+        </div>
+      )}
+
+      {!landscape && !timeUp && (
+        <div class="overlay-msg">
+          <Icon name="device-rotate" size={44} />
+          <h2 class="display">{STRINGS.turnSideways}</h2>
+          <p>Clock's paused until you do.</p>
+          <button class="btn btn-secondary press" style={{ width: 'auto', marginTop: 12, background: 'rgba(243,237,226,0.14)', color: 'inherit' }} onClick={quit}>
+            End round
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Word({ text }: { text: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [fit, setFit] = useState<Fit | null>(null);
+  const landscape = isLandscape.value;
+
+  useLayoutEffect(() => {
+    const box = ref.current?.parentElement;
+    if (!box) return;
+    const measure = () => setFit(fitText(text, box.clientWidth, box.clientHeight));
+    measure();
+    // Re-fit once the display font is definitely in.
+    document.fonts?.ready.then(measure).catch(() => {});
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [text, landscape]);
+
+  return (
+    <div class="word-box">
+      <div
+        ref={ref}
+        class="word display enter"
+        style={{ fontSize: fit ? fit.size : 10, visibility: fit ? 'visible' : 'hidden' }}
+      >
+        {(fit?.lines ?? [text]).join('\n')}
+      </div>
+    </div>
+  );
+}
+
+function MicPill({ on, status }: { on: boolean; status: VoiceStatus }) {
+  if (!on) {
+    return (
+      <span class="mic-pill dim">
+        <Icon name="microphone-slash" size={14} /> Voice off
+      </span>
+    );
+  }
+  const label =
+    status === 'listening'
+      ? 'Listening'
+      : status === 'starting'
+        ? 'Starting mic'
+        : status === 'offline'
+          ? 'Voice offline'
+          : status === 'unavailable'
+            ? 'Voice unavailable'
+            : 'Voice paused';
+  const live = status === 'listening';
+  return (
+    <span class={'mic-pill' + (live ? ' live' : ' dim')} role="status">
+      {live ? <span class="dot" /> : <Icon name="microphone-slash" size={14} />}
+      {label}
+    </span>
+  );
+}

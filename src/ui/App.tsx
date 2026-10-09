@@ -2,6 +2,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { effect } from '@preact/signals';
 import { installDismissed, settings } from '../state';
 import { setSoundEnabled } from '../audio';
+import { setHapticsEnabled } from '../haptics';
 import { isStandalone } from '../voice';
 import { isIOS } from '../tilt';
 import { Icon } from './icons';
@@ -24,6 +25,7 @@ effect(() => {
   applyChrome();
 });
 effect(() => setSoundEnabled(settings.value.sound));
+effect(() => setHapticsEnabled(settings.value.haptics));
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'play', label: 'Play', icon: 'play' },

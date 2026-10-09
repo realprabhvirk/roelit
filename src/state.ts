@@ -19,6 +19,7 @@ export type Settings = {
   theme: Theme;
   /** Record rounds with the front camera (toggled on the get-ready screen). */
   record: boolean;
+  haptics: boolean;
 };
 
 export const ROUND_LENGTHS = [30, 60, 90, 120] as const;
@@ -32,6 +33,7 @@ const DEFAULTS: Settings = {
   flipTilt: false,
   theme: 'system',
   record: false,
+  haptics: true,
 };
 
 export const settings = signal<Settings>({ ...DEFAULTS, ...load<Partial<Settings>>('settings', {}) });

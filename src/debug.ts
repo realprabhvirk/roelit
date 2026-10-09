@@ -101,6 +101,8 @@ export function initDiagnostics(version: string): void {
   addEventListener(
     'click',
     (e) => {
+      // The haptics helper clicks a hidden switch; that's not a user tap.
+      if ((e.target as Element | null)?.closest?.('[data-haptic-el]')) return;
       if (down) {
         const ms = Math.round(performance.now() - down.at);
         log(`tap ${down.target} (${down.x},${down.y}) -> click ${describe(e.target)} ${ms}ms`);

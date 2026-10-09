@@ -20,6 +20,7 @@ Phosphor Icons, **bold weight only**, bundled as raw SVG in `src/ui/icons.tsx`.
 - `src/voice.ts` Web Speech wrapper, never throws into a round
 - `src/audio.ts` Web Audio synth sounds, `src/wakelock.ts`, `src/storage.ts` (try/catch localStorage)
 - `src/camera.ts` front camera + mic stream; `src/recorder.ts` draws the branded overlay on a canvas and records it (MediaRecorder). Voice is off in recorded rounds (one mic user at a time). Clips save via the share sheet; iOS has no silent save-to-Photos.
+- `src/haptics.ts` one app-wide tap haptic (capture click) + `haptic(kind)` for moments. iOS: hidden native `switch` tick, taps only. Android: `navigator.vibrate`. Opt a control out or change its feel with `data-haptic`.
 - `src/debug.ts` on-device log (Settings → Diagnostics). Use `log()` for anything worth knowing after a freeze; never log codes or card text.
 - iOS rules learned the hard way: one SpeechRecognition at a time (voice.ts gates it); never fire two permission prompts at once; no surprise mic restarts in standalone; don't touch `navigator.audioSession`; the window must never stay scrolled (main.tsx snaps it back).
 - `src/state.ts` persisted signals (settings, custom decks, best scores)

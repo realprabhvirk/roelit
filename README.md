@@ -63,7 +63,7 @@ Custom decks: Decks → New deck. Cards are one per line, aliases after a bar: `
 
 - **Voice in home-screen apps is flaky.** iOS has a history of blocking `SpeechRecognition` in standalone PWAs (`service-not-allowed`) or re-asking for permission. If it fails, tilt keeps working, the mic pill says *Voice unavailable*, and Settings explains it. Opening the game in Safari instead usually fixes it. Use **Settings → Test voice** to check.
 - Voice uses Apple's recogniser and may need a connection. It's not on-device-only.
-- **No haptics.** iOS Safari has no `navigator.vibrate`. Feedback is the full-screen colour flash + sound.
+- **Haptics on iPhone come from taps only.** iOS Safari has no vibration API; the app uses the native switch's system tick (iOS 18+), which iOS only plays inside a tap. So tilts and voice matches don't buzz on iPhone (they do on Android). Settings → Game → Haptics turns them off.
 - **No orientation lock.** iOS ignores the manifest and `screen.orientation.lock()`. Rotating to portrait mid-round shows "Turn your phone sideways" and pauses the clock.
 - Motion permission: iOS asks once (needs a tap). If you said no, Settings → Apps → Safari → Motion & Orientation Access. A home-screen app may need deleting and re-adding to ask again.
 - With the mic live, iOS can route sound quieter. Sounds are short to keep it sane.

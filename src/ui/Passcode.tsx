@@ -3,6 +3,7 @@ import { unlockCrew } from '../vault';
 import { CREW_CODE_LENGTH } from '../decks';
 import { sfx } from '../audio';
 import { log } from '../debug';
+import { haptic } from '../haptics';
 import { Icon } from './icons';
 import { Sheet } from './controls';
 
@@ -63,9 +64,11 @@ export function PasscodeSheet({
     log(`passcode: ${ok ? 'ok' : 'wrong'}`);
     if (ok) {
       sfx.correct();
+      haptic('success');
       onUnlocked();
     } else {
       sfx.pass();
+      haptic('error');
       setShake(true);
       setTimeout(() => {
         live.current = { digits: '', busy: false };

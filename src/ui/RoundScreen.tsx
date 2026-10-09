@@ -5,6 +5,7 @@ import { STRINGS } from '../strings';
 import { CardQueue, Round, type Outcome } from '../game';
 import { THRESHOLDS, TiltDetector } from '../tilt';
 import { sfx } from '../audio';
+import { haptic } from '../haptics';
 import { log } from '../debug';
 import { keepAwake } from '../wakelock';
 import { cardText } from '../match';
@@ -108,6 +109,7 @@ function RoundView({ deck, tilt, voiceOn, record }: { deck: Deck; tilt: boolean;
           ov.current = { ...ov.current, phase: 'countdown', countdown: e.n };
           if (e.n === 3) tiltSensor.beginCalibration();
           sfx.countdown();
+          haptic('select');
           rerender();
           break;
         case 'start':
@@ -127,6 +129,9 @@ function RoundView({ deck, tilt, voiceOn, record }: { deck: Deck; tilt: boolean;
           voice?.setCard(null);
           if (e.outcome === 'correct') sfx.correct();
           else sfx.pass();
+          // On iPhone this only lands for edge taps (iOS allows haptics from taps only);
+          // Android feels tilts and voice too.
+          haptic(e.outcome === 'correct' ? 'success' : 'medium');
           setFlash({ outcome: e.outcome, text: cardText(e.card) });
           break;
         case 'second':
@@ -138,6 +143,7 @@ function RoundView({ deck, tilt, voiceOn, record }: { deck: Deck; tilt: boolean;
           // Hold the "Time!" end card a moment, then wrap the clip up.
           finishRecording(TIME_UP_MS + 900);
           sfx.buzzer();
+          haptic('error');
           voice?.stop();
           setFlash(null);
           setTimeUp(true);
@@ -280,8 +286,8 @@ function RoundView({ deck, tilt, voiceOn, record }: { deck: Deck; tilt: boolean;
           card && <Word key={cardKey} text={cardText(card)} />
         )}
 
-        <button class="tap-zone left" aria-label={STRINGS.pass} onClick={() => round.mark('pass')} />
-        <button class="tap-zone right" aria-label={STRINGS.correct} onClick={() => round.mark('correct')} />
+        <button class="tap-zone left" data-haptic="none" aria-label={STRINGS.pass} onClick={() => round.mark('pass')} />
+        <button class="tap-zone right" data-haptic="none" aria-label={STRINGS.correct} onClick={() => round.mark('correct')} />
 
         <div class="round-foot">
           <span class="edge-hint">

@@ -12,6 +12,7 @@ import { makeVoice } from './services';
 import { InstallSheet } from './HelpSheets';
 import { DiagnosticsSheet } from './Diagnostics';
 import { cameraSupported } from '../camera';
+import { hapticsSupported } from '../haptics';
 
 declare const __APP_VERSION__: string;
 declare const __BUILD__: string;
@@ -52,6 +53,12 @@ export function SettingsTab({ active }: { active: boolean }) {
           title="Sound"
           trail={<Switch label="Sound" checked={s.sound} onChange={(v) => setSetting('sound', v)} />}
         />
+        {hapticsSupported() && (
+          <Row
+            title="Haptics"
+            trail={<Switch label="Haptics" checked={s.haptics} onChange={(v) => setSetting('haptics', v)} />}
+          />
+        )}
         {cameraSupported() && (
           <Row
             title="Record video"

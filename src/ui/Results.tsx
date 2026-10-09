@@ -11,6 +11,7 @@ import { primeForRound } from './PreRound';
 import { clip, discardClip, saveClip } from '../recorder';
 import { stopCamera } from '../camera';
 import { log } from '../debug';
+import { haptic } from '../haptics';
 
 export function Results({ deckId, results, newBest }: { deckId: string; results: Result[]; newBest: boolean }) {
   const deck = findDeck(deckId);
@@ -51,7 +52,8 @@ export function Results({ deckId, results, newBest }: { deckId: string; results:
 
   const save = async () => {
     setWarn(false);
-    await saveClip();
+    const r = await saveClip();
+    if (r === 'saved' || r === 'downloaded') haptic('success');
   };
 
   useEffect(() => {

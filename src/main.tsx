@@ -1,6 +1,7 @@
 import { Component, render, type ComponentChildren } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 import { initDiagnostics, log } from './debug';
+import { initTapHaptics } from './haptics';
 import '@fontsource/anton/latin-400.css';
 import './styles.css';
 import { App } from './ui/App';
@@ -9,13 +10,14 @@ import { registerSW } from 'virtual:pwa-register';
 
 declare const __APP_VERSION__: string;
 initDiagnostics(__APP_VERSION__);
+initTapHaptics();
 
 // The page itself never scrolls: every list scrolls inside its own box. iOS can
 // still leave the window nudged after the keyboard closes or the phone rotates,
 // and then every tap lands a little off its button ("buttons stop working until
 // I reopen the app"). Snap it back, except while someone is typing.
 function snapBack(): void {
-  const typing = document.activeElement?.matches?.('input, textarea');
+  const typing = document.activeElement?.matches?.('input:not([type=checkbox]):not([type=range]), textarea');
   if (typing || (!scrollX && !scrollY)) return;
   log(`viewport nudged to ${Math.round(scrollX)},${Math.round(scrollY)}, snapping back`);
   scrollTo(0, 0);

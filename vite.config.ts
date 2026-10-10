@@ -57,6 +57,8 @@ export default defineConfig({
   ],
   test: {
     environment: 'node',
+    // nod-it-handoff/ holds reference copies for the NOD IT! rebuild; not this app's tests.
+    exclude: ['**/node_modules/**', 'nod-it-handoff/**'],
     root: fileURLToPath(new URL('.', import.meta.url)),
   },
 });

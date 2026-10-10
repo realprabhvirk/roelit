@@ -27,7 +27,7 @@ Phosphor Icons, **bold weight only**, bundled as raw SVG in `src/ui/icons.tsx`.
 - `src/ui/*` screens; `router.ts` holds tab + full-screen flow
 - `src/strings.ts` app name and action labels. A correct guess is always "ROEL IT!", never "Correct".
 - Decks: `src/decks/*.json`, registered in `src/decks/index.ts`.
-- The Crew is passcode-locked: only `src/decks/the-crew.locked.json` (encrypted) exists in the repo. `src/vault-crypto.ts` + `src/vault.ts` handle it; `scripts/crew.mjs` locks/unlocks. **Never commit the plaintext names or the passcode.**
+- The Crew is passcode-locked: only `src/decks/the-crew.locked.json` (encrypted) exists in the repo. `src/vault-crypto.ts` + `src/vault.ts` handle it; `scripts/crew.mjs` locks/unlocks. **Never commit the passcode.** Plaintext names only ever live in `nod-it-handoff/` (owner's call); never in `src/`.
 
 ## Design rules (non-negotiable)
 - Never use neon, glow, gradients, glassmorphism, emoji as icons, AI-generated icons/art, gradient text.
@@ -35,3 +35,6 @@ Phosphor Icons, **bold weight only**, bundled as raw SVG in `src/ui/icons.tsx`.
 - iOS-native feel: large titles, inset grouped lists, bottom sheets, 44pt targets, safe areas, spring easing `cubic-bezier(0.2, 0.8, 0.2, 1)`.
 - Copy: short, dry, Aussie. No exclamation-mark spam, no marketing voice.
 - Don't use "Heads Up" name, branding, deck names or colours.
+
+## NOD IT! handoff
+`nod-it-handoff/` is a rebuild pack for Codex (prompt, inventory, constants, lessons, verbatim decks). Not part of the app; vitest excludes it. Regenerate with `CREW_CODE=<code> node nod-it-handoff/scripts/build-handoff.mjs`, verify with `node nod-it-handoff/scripts/check-handoff.mjs`.
